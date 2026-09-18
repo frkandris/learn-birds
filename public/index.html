@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Madárhatározó — tanulókártyák</title>
+<meta name="description" content="Tanulókártyák magyar madárfajok képének és hangjának felismeréséhez, ismétléses ütemezéssel.">
+<meta name="theme-color" content="#101c17">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Madarak">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main class="app">
+
+  <!-- Mai adag -->
+  <section class="view" id="view-today" data-view="today">
+    <header class="today-head">
+      <p class="today-date" id="today-date"></p>
+      <h1 class="today-title" id="today-title">Mai adag</h1>
+      <p class="today-lead" id="today-lead">Töltés…</p>
+    </header>
+
+    <div class="start-stack">
+      <button class="start" id="start-both" type="button">
+        <span class="start-name">Kép és hang</span>
+        <span class="start-note">Fotó és hangfelvétel — a teljes madár.</span>
+        <span class="start-count" id="count-both">–</span>
+      </button>
+      <button class="start start-ear" id="start-sound" type="button">
+        <span class="start-name">Csak hang</span>
+        <span class="start-note">Semmi kép. Ahogy a terepen hallod.</span>
+        <span class="start-count" id="count-sound">–</span>
+      </button>
+    </div>
+
+    <div class="dose">
+      <span class="dose-label">Napi adag</span>
+      <div class="dose-options" id="dose" role="group" aria-label="Napi adag"></div>
+    </div>
+
+    <p class="today-foot" id="today-foot"></p>
+  </section>
+
+  <!-- Fajok -->
+  <section class="view" id="view-birds" data-view="birds" hidden>
+    <header class="page-head">
+      <h1>Fajok</h1>
+      <p id="birds-lead">A pakli és az eddigi haladás.</p>
+    </header>
+    <ul class="bird-list" id="bird-list"></ul>
+  </section>
+
+  <!-- Források -->
+  <section class="view" id="view-sources" data-view="sources" hidden>
+    <header class="page-head">
+      <h1>Források</h1>
+      <p>Minden fotó és hangfelvétel a Wikimedia Commonsról való, szabad licenccel. A szerzők és a licencek fajonként:</p>
+    </header>
+    <div class="sources" id="sources"></div>
+    <div class="danger">
+      <h2>Haladás törlése</h2>
+      <p>A gyakorlás eredménye csak ezen a készüléken, a böngészőben tárolódik. Törléssel minden faj visszaáll tanulatlanra.</p>
+      <button class="btn btn-quiet" id="reset" type="button">Haladás törlése</button>
+    </div>
+  </section>
+
+</main>
+
+<nav class="tabbar" aria-label="Fő navigáció">
+  <button type="button" data-tab="today" class="tab is-current">Ma</button>
+  <button type="button" data-tab="birds" class="tab">Fajok</button>
+  <button type="button" data-tab="sources" class="tab">Források</button>
+</nav>
+
+<!-- Gyakorlás -->
+<div class="session" id="session" hidden>
+  <header class="session-head">
+    <button class="session-close" id="session-close" type="button" aria-label="Gyakorlás befejezése">Vissza</button>
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <p class="session-mode" id="session-mode"></p>
+  </header>
+
+  <div class="card" id="card">
+    <div class="stage" id="stage">
+      <figure class="photo" id="photo" hidden>
+        <img id="photo-img" alt="">
+      </figure>
+      <div class="sound" id="sound">
+        <canvas class="spectro" id="spectro" width="600" height="300" aria-hidden="true"></canvas>
+        <button class="play" id="play" type="button" aria-label="Hang lejátszása">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path class="icon-play" d="M8 5.5v13l11-6.5z"/>
+          <path class="icon-pause" d="M7.5 5.5h3.4v13H7.5zM13.1 5.5h3.4v13h-3.4z"/>
+        </svg>
+        </button>
+        <p class="sound-hint" id="sound-hint">Koppints a hanghoz</p>
+      </div>
+    </div>
+
+    <div class="answer" id="answer" hidden>
+      <h2 class="answer-name" id="answer-name"></h2>
+      <p class="answer-latin" id="answer-latin"></p>
+      <p class="answer-credit" id="answer-credit"></p>
+    </div>
+  </div>
+
+  <footer class="session-foot">
+    <button class="btn btn-primary" id="reveal" type="button">Mutasd a nevét</button>
+    <div class="grade" id="grade" hidden>
+      <button class="btn btn-again" id="grade-again" type="button">Nem erre gondoltam</button>
+      <button class="btn btn-good" id="grade-good" type="button">Erre gondoltam</button>
+    </div>
+  </footer>
+
+  <audio id="audio" preload="auto" playsinline></audio>
+</div>
+
+<!-- Session összegzés -->
+<div class="done" id="done" hidden>
+  <div class="done-inner">
+    <p class="done-kicker" id="done-kicker"></p>
+    <h2 class="done-title" id="done-title"></h2>
+    <dl class="done-stats" id="done-stats"></dl>
+    <div class="done-actions">
+      <button class="btn btn-primary" id="done-close" type="button">Kész</button>
+      <button class="btn btn-quiet" id="done-again" type="button">Még egy kör</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

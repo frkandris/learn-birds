@@ -1,0 +1,492 @@
+/* Madárhatározó tanulókártyák — a paletta a fajokból jön:
+   lombárnyék-zöld háttér, széncinege-sárga, kék cinege-kék, tengelic-piros. */
+
+:root {
+  --shade: #101c17;
+  --shade-2: #17261e;
+  --moss: #23362b;
+  --bone: #f0ede2;
+  --bone-soft: rgba(240, 237, 226, 0.66);
+  --bone-faint: rgba(240, 237, 226, 0.4);
+  --line: rgba(240, 237, 226, 0.14);
+  --tit: #e9c337;
+  --sky: #5b8ed4;
+  --finch: #c4372a;
+  --radius: 6px;
+  --gutter: 20px;
+  --serif: 'Alegreya', Georgia, 'Times New Roman', serif;
+  --sans: 'Alegreya Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --tabbar: calc(58px + env(safe-area-inset-bottom));
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--shade);
+  color: var(--bone);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+h1, h2 { font-family: var(--serif); font-weight: 700; line-height: 1.1; margin: 0; }
+p { margin: 0; }
+button { font: inherit; color: inherit; }
+
+.app {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: calc(28px + env(safe-area-inset-top)) var(--gutter) calc(var(--tabbar) + 28px);
+}
+
+/* ---------- Ma ---------- */
+
+.today-head { padding-top: 12px; }
+
+.today-date {
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  color: var(--bone-faint);
+}
+
+.today-title {
+  font-size: clamp(38px, 12vw, 52px);
+  margin: 6px 0 10px;
+  text-wrap: balance;
+}
+
+.today-title em { font-style: normal; color: var(--tit); }
+
+.today-lead { color: var(--bone-soft); max-width: 34ch; }
+
+.start-stack {
+  display: grid;
+  gap: 12px;
+  margin: 30px 0 34px;
+}
+
+.start {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2px 16px;
+  width: 100%;
+  padding: 18px 18px 18px 20px;
+  text-align: left;
+  background: var(--shade-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--tit);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.start-ear { border-left-color: var(--sky); }
+
+.start:hover { background: var(--moss); }
+.start:disabled { opacity: 0.45; cursor: default; }
+.start:disabled:hover { background: var(--shade-2); }
+
+.start-name { font-family: var(--serif); font-size: 26px; font-weight: 700; }
+
+.start-note {
+  grid-column: 1;
+  font-size: 15px;
+  color: var(--bone-soft);
+  line-height: 1.35;
+}
+
+.start-count {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  font-family: var(--serif);
+  font-size: 34px;
+  font-variant-numeric: lining-nums;
+  color: var(--tit);
+}
+
+.start-ear .start-count { color: var(--sky); }
+
+.dose {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.dose-label { color: var(--bone-soft); font-size: 16px; }
+.dose-options { display: flex; gap: 6px; }
+
+.dose-options button {
+  min-width: 42px;
+  padding: 7px 0;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--bone-soft);
+  cursor: pointer;
+}
+
+.dose-options button[aria-pressed='true'] {
+  background: var(--tit);
+  border-color: var(--tit);
+  color: var(--shade);
+  font-weight: 700;
+}
+
+.today-foot {
+  margin-top: 18px;
+  font-size: 15px;
+  color: var(--bone-faint);
+  line-height: 1.45;
+}
+
+/* ---------- Fajok, források ---------- */
+
+.page-head { padding: 12px 0 22px; }
+.page-head h1 { font-size: 40px; margin-bottom: 8px; }
+.page-head p { color: var(--bone-soft); max-width: 40ch; }
+
+.bird-list { list-style: none; margin: 0; padding: 0; }
+
+.bird {
+  display: grid;
+  grid-template-columns: 62px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.bird:last-child { border-bottom: 1px solid var(--line); }
+
+.bird img {
+  width: 62px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--moss);
+}
+
+.bird-name { font-family: var(--serif); font-size: 21px; font-weight: 700; line-height: 1.2; }
+.bird-latin { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--bone-faint); }
+
+.skills { display: grid; gap: 5px; justify-items: end; }
+
+.skill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--bone-faint);
+}
+
+.pips { display: flex; gap: 3px; }
+
+.pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid var(--bone-faint);
+}
+
+.pip.on { background: var(--tit); border-color: var(--tit); }
+.skill.ear .pip.on { background: var(--sky); border-color: var(--sky); }
+.pip.due { background: var(--finch); border-color: var(--finch); }
+
+.sources { display: grid; gap: 22px; }
+.source h2 { font-size: 22px; margin-bottom: 6px; }
+.source ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.source li { font-size: 14px; color: var(--bone-soft); line-height: 1.4; }
+.source a { color: var(--bone-soft); }
+.source .kind { color: var(--bone-faint); }
+
+.danger { margin-top: 36px; padding-top: 22px; border-top: 1px solid var(--line); }
+.danger h2 { font-size: 22px; margin-bottom: 6px; }
+.danger p { color: var(--bone-soft); font-size: 15px; margin-bottom: 14px; max-width: 42ch; }
+
+/* ---------- Tabbar ---------- */
+
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+  background: rgba(16, 28, 23, 0.94);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+}
+
+.tab {
+  flex: 0 1 140px;
+  padding: 9px 4px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: var(--bone-faint);
+  cursor: pointer;
+}
+
+.tab.is-current { color: var(--bone); background: var(--shade-2); }
+
+/* ---------- Gyakorlás ---------- */
+
+.session {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  background: var(--shade);
+  padding: calc(12px + env(safe-area-inset-top)) var(--gutter) calc(18px + env(safe-area-inset-bottom));
+}
+
+.session[hidden] { display: none; }
+
+.session-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px 14px;
+  flex: none;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.session-close {
+  padding: 6px 0;
+  background: none;
+  border: none;
+  color: var(--bone-faint);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.progress { display: flex; gap: 3px; }
+
+.progress span {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--moss);
+}
+
+.progress span.done { background: var(--tit); }
+.progress span.now { background: var(--bone); }
+.progress span.miss { background: var(--finch); }
+
+.session-mode {
+  grid-column: 1 / -1;
+  font-size: 14px;
+  color: var(--bone-faint);
+}
+
+.card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  min-height: 0;
+  padding: 14px 0;
+}
+
+.stage { min-height: 0; display: flex; flex-direction: column; }
+
+.photo { margin: 0; flex: 1; min-height: 0; }
+.photo[hidden] { display: none; }
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  max-height: 58vh;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--shade-2);
+}
+
+.sound {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 18px;
+  padding: 30px 0 8px;
+}
+
+.sound[hidden] { display: none; }
+
+.spectro {
+  width: 100%;
+  height: 132px;
+  border-radius: 3px;
+  background: var(--shade-2);
+  opacity: 0.9;
+}
+
+.play {
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  background: var(--tit);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.play svg { width: 40px; height: 40px; fill: var(--shade); margin-left: 4px; }
+.play:active { transform: scale(0.96); }
+.play.playing { background: var(--bone); }
+.play.playing svg { margin-left: 0; }
+.play .icon-pause { display: none; }
+.play.playing .icon-play { display: none; }
+.play.playing .icon-pause { display: block; }
+
+.sound-hint { font-size: 15px; color: var(--bone-faint); }
+
+.answer { text-align: center; flex: none; }
+.answer[hidden] { display: none; }
+
+.answer-name {
+  font-size: clamp(34px, 11vw, 46px);
+  animation: rise 0.34s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.answer-latin {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--tit);
+  margin-top: 2px;
+}
+
+.answer-credit { font-size: 13px; color: var(--bone-faint); margin-top: 10px; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.session-foot {
+  flex: none;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 6px;
+}
+
+.grade { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grade[hidden] { display: none; }
+
+.btn {
+  width: 100%;
+  padding: 16px 12px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.btn-primary,
+.btn-good {
+  background: var(--tit);
+  border-color: var(--tit);
+  color: var(--shade);
+  font-weight: 700;
+}
+
+.btn-again { border-color: rgba(196, 55, 42, 0.7); color: var(--bone); }
+.btn-quiet { color: var(--bone-soft); }
+.btn[hidden] { display: none; }
+
+/* ---------- Összegzés ---------- */
+
+.done {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background: var(--shade);
+}
+
+.done[hidden] { display: none; }
+.done-inner { max-width: 420px; width: 100%; }
+.done-kicker { color: var(--bone-faint); font-size: 15px; }
+.done-title { font-size: clamp(34px, 11vw, 46px); margin: 6px 0 24px; }
+
+.done-stats {
+  display: grid;
+  gap: 1px;
+  margin: 0 0 28px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.done-stats div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 16px;
+  background: var(--shade-2);
+}
+
+.done-stats dt { color: var(--bone-soft); }
+.done-stats dd { margin: 0; font-family: var(--serif); font-size: 21px; font-weight: 700; }
+.done-actions { display: grid; gap: 10px; }
+
+/* ---------- Közös ---------- */
+
+:focus-visible {
+  outline: 2px solid var(--tit);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .session { padding-left: 0; padding-right: 0; }
+  .session-head, .card, .session-foot { padding-left: var(--gutter); padding-right: var(--gutter); }
+}
+
+/* Kép és hang módban a fotó a főszereplő, a hang mellé kerül;
+   a válasz felfedésekor mindkettő összébb húzódik, hogy a név férjen el. */
+
+.session[data-mode='both'] .spectro { display: none; }
+.session[data-mode='both'] .sound { padding: 14px 0 0; gap: 10px; }
+.session[data-mode='both'] .play { width: 56px; height: 56px; }
+.session[data-mode='both'] .play svg { width: 26px; height: 26px; }
+.session[data-mode='both'] .sound-hint { display: none; }
+
+.card.revealed .photo img { max-height: 36vh; }
+.card.revealed .spectro { display: none; }
+.card.revealed .sound { padding: 10px 0 0; }
+.card.revealed .play { width: 56px; height: 56px; }
+.card.revealed .play svg { width: 26px; height: 26px; }
+.card.revealed .sound-hint { display: none; }

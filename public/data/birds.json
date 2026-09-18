@@ -1,0 +1,274 @@
+{
+  "generated": "2026-09-18T09:33:07.483Z",
+  "birds": [
+    {
+      "id": "balkani-gerle",
+      "name": "balkáni gerle",
+      "taxon": "Streptopelia decaocto",
+      "en": "Eurasian Collared Dove",
+      "qid": "Q54696",
+      "images": [
+        {
+          "file": "media/balkani-gerle-1.jpg",
+          "author": "Dr. Raju Kasambe",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Eurasian_Collared_Dove_Streptopelia_decaocto_by_Dr._Raju_Kasambe_DSCN2357_(3).jpg"
+        },
+        {
+          "file": "media/balkani-gerle-2.jpg",
+          "author": "xulescu_g",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Streptopelia_decaocto,_H%C4%83rman,_Rom%C3%A2nia_(34881606270).jpg"
+        },
+        {
+          "file": "media/balkani-gerle-3.jpg",
+          "author": "Luiz Lapa from Oeiras, Portugal",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "source": "https://commons.wikimedia.org/wiki/File:R%C3%B4la-turca,_%22_a_soneca%22_Eurasian_Collared_Dove,_%22the_nap%22_(52485351197).jpg"
+        }
+      ],
+      "audio": [
+        {
+          "file": "media/balkani-gerle-1.m4a",
+          "author": "Jonathon Jongsma",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Streptopelia_decaocto_-_Eurasian_Collared_Dove_XC82758.mp3"
+        }
+      ]
+    },
+    {
+      "id": "oszapo",
+      "name": "őszapó",
+      "taxon": "Aegithalos caudatus",
+      "en": "Long-tailed Tit",
+      "qid": "Q170831",
+      "images": [
+        {
+          "file": "media/oszapo-1.jpg",
+          "author": "Rhododendrites",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Long-tailed_tit_(74940).jpg"
+        },
+        {
+          "file": "media/oszapo-2.jpg",
+          "author": "Francis C. Franklin",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Aegithalos_caudatus_front-on_2.jpg"
+        },
+        {
+          "file": "media/oszapo-3.jpg",
+          "author": "Alexis Lours",
+          "license": "CC BY 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Long-tailed_tit_(Aegithalos_caudatus)_on_a_twig.jpg"
+        }
+      ],
+      "audio": [
+        {
+          "file": "media/oszapo-1.m4a",
+          "author": "Jonathon Jongsma",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Aegithalos_caudatus_-_Long-tailed_Tit_XC114614.mp3"
+        },
+        {
+          "file": "media/oszapo-2.m4a",
+          "author": "Borja",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Aegithalos_caudatus_-_Long-tailed_Tit_XC424195.mp3"
+        }
+      ]
+    },
+    {
+      "id": "kek-cinege",
+      "name": "kék cinege",
+      "taxon": "Cyanistes caeruleus",
+      "en": "Eurasian blue tit",
+      "qid": "Q25404",
+      "images": [
+        {
+          "file": "media/kek-cinege-1.jpg",
+          "author": "Maximilian Dorsch",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "source": "https://commons.wikimedia.org/wiki/File:ParusCaeruleus.jpg"
+        },
+        {
+          "file": "media/kek-cinege-2.jpg",
+          "author": "Sławek Staszczuk",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "https://commons.wikimedia.org/wiki/File:Parus_caeruleus1.jpg"
+        },
+        {
+          "file": "media/kek-cinege-3.jpg",
+          "author": "keith gallie from Warrington, UK",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Blue_Tit_(32923060671).jpg"
+        }
+      ],
+      "audio": [
+        {
+          "file": "media/kek-cinege-1.m4a",
+          "author": "Benoît Van Hecke",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Cyanistes_caeruleus_-_Eurasian_Blue_Tit_XC538220.mp3"
+        },
+        {
+          "file": "media/kek-cinege-2.m4a",
+          "author": "Benoît Van Hecke",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Cyanistes_caeruleus_-_Eurasian_Blue_Tit_XC541761.mp3"
+        }
+      ]
+    },
+    {
+      "id": "szencinege",
+      "name": "széncinege",
+      "taxon": "Parus major",
+      "en": "great tit",
+      "qid": "Q25485",
+      "images": [
+        {
+          "file": "media/szencinege-1.jpg",
+          "author": "PeterRohrbeck",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Kohlmeise27ib.jpg"
+        },
+        {
+          "file": "media/szencinege-2.jpg",
+          "author": "Frank Vassen from Brussels, Belgium",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Great_tit_(Parus_major),_Parc_de_Woluw%C3%A9,_Brussels_(13042792905).jpg"
+        },
+        {
+          "file": "media/szencinege-3.jpg",
+          "author": "Giles Laurent",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:029_Great_tit_standing_on_flowering_Wisteria_in_Gl%C3%A2ne_District_Photo_by_Giles_Laurent.jpg"
+        }
+      ],
+      "audio": [
+        {
+          "file": "media/szencinege-1.m4a",
+          "author": "Marie-Lan Taÿ Pamart",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Parus_major_-_Great_Tit_XC518420.mp3"
+        },
+        {
+          "file": "media/szencinege-2.m4a",
+          "author": "Benoît Van Hecke",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Parus_major_-_Great_Tit_XC541197.mp3"
+        }
+      ]
+    },
+    {
+      "id": "tengelic",
+      "name": "tengelic",
+      "taxon": "Carduelis carduelis",
+      "en": "European Goldfinch",
+      "qid": "Q25418",
+      "images": [
+        {
+          "file": "media/tengelic-1.jpg",
+          "author": "Bernard Fidel",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Chardonneret_(51873870425).jpg"
+        },
+        {
+          "file": "media/tengelic-2.jpg",
+          "author": "Giles Laurent",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:030_European_goldfinch_with_Wisteria_in_the_background_in_Gl%C3%A2ne_District_Photo_by_Giles_Laurent.jpg"
+        },
+        {
+          "file": "media/tengelic-3.jpg",
+          "author": "Zerocool.marko",
+          "license": "CC0",
+          "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+          "source": "https://commons.wikimedia.org/wiki/File:Carduelis_carduelis114.jpg"
+        }
+      ],
+      "audio": [
+        {
+          "file": "media/tengelic-1.m4a",
+          "author": "Marie-Lan Taÿ Pamart",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Carduelis_carduelis_-_European_Goldfinch_XC473287.mp3"
+        },
+        {
+          "file": "media/tengelic-2.m4a",
+          "author": "Sander Pieterse",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Carduelis_carduelis_-_European_Goldfinch_XC101464.mp3"
+        }
+      ]
+    },
+    {
+      "id": "hollo",
+      "name": "holló",
+      "taxon": "Corvus corax",
+      "en": "Northern Raven",
+      "qid": "Q25357",
+      "images": [
+        {
+          "file": "media/hollo-1.jpg",
+          "author": "Imran Shah from Islamabad, Pakistan",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Common_Raven_(Corvus_corax)_(39638261481).jpg"
+        },
+        {
+          "file": "media/hollo-2.jpg",
+          "author": "Franco Folini from San Francisco, USA",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Common_Raven_(Corvus_corax)_(11793963694).jpg"
+        },
+        {
+          "file": "media/hollo-3.jpg",
+          "author": "Accipiter (R. Altenkamp, Berlin)",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Corvus_corax_ad_berlin_090516.jpg"
+        }
+      ],
+      "audio": [
+        {
+          "file": "media/hollo-1.m4a",
+          "author": "Jonathon Jongsma",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Corvus_corax_-_Northern_Raven_XC101590.mp3"
+        },
+        {
+          "file": "media/hollo-2.m4a",
+          "author": "Benjamin Mayer",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Corvus_corax_-_Northern_Raven_XC488951.mp3"
+        }
+      ]
+    }
+  ]
+}
