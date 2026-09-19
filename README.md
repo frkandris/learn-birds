@@ -24,8 +24,23 @@ telefon böngészőjéből is megnyitható. iPhone-on a **Megosztás → Főkép
 adás** kirakja ikonként; teljes képernyőn, saját ikonnal indul.
 
 Az offline működés (service worker) csak HTTPS-en vagy localhoston él, a
-helyi hálózati IP-címen nem. Ha kell, a `public/` mappa változatlanul
-publikálható bármilyen statikus tárhelyre (GitHub Pages, Netlify).
+helyi hálózati IP-címen nem.
+
+## Éles verzió
+
+<https://9fpuemtkvx4d8hlawl9hkhzz.157.180.21.144.sslip.io>
+
+Coolify (`learn-birds` projekt, `9fpuemtkvx4d8hlawl9hkhzz`) a meetapedia
+szerverén, Dockerfile build packkel: az `nginx` a `public/` mappát szolgálja
+ki, a beállításai a `deploy/nginx.conf`-ban vannak. A deploy nem automatikus,
+a `main` frissítése után kézzel kell indítani:
+
+```sh
+~/.config/strt/coolify-birds.sh "/api/v1/deploy?uuid=9fpuemtkvx4d8hlawl9hkhzz" -X POST
+```
+
+(A helper a Coolify-tokent a `~/.config/strt/coolify-birds.env`-ből olvassa,
+hogy ne kerüljön parancssorba.)
 
 ## Madarak hozzáadása
 
