@@ -32,8 +32,10 @@ helyi hálózati IP-címen nem.
 
 Coolify (`learn-birds` projekt, `9fpuemtkvx4d8hlawl9hkhzz`) a meetapedia
 szerverén, Dockerfile build packkel: az `nginx` a `public/` mappát szolgálja
-ki, a beállításai a `deploy/nginx.conf`-ban vannak. A deploy nem automatikus,
-a `main` frissítése után kézzel kell indítani:
+ki, a beállításai a `deploy/nginx.conf`-ban vannak.
+
+A `main`-re érkező push webhookon automatikusan deployol (~1 perc). Kézzel is
+indítható:
 
 ```sh
 ~/.config/strt/coolify-birds.sh "/api/v1/deploy?uuid=9fpuemtkvx4d8hlawl9hkhzz" -X POST
