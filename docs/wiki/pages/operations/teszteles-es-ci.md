@@ -17,8 +17,14 @@ füstteszt — automatizált böngészős teszt tudatosan nincs.*
 ## Mit fed a tesztcsomag
 
 ```sh
-npm test      # node --test test/
+npm test      # node --test
 ```
+
+A futó **argumentum nélkül** hívja a tesztfutót: az maga keresi meg a
+`**/*.test.mjs` fájlokat. A `node --test test/` alak Node 26-on még működik, Node
+22-n viszont a könyvtárat modulként próbálja betölteni és elszáll
+(`Cannot find module …/test`) — a CI 2026-09-21-én pont ezt fogta meg az első
+futásán.
 
 | Fájl | Mit rögzít |
 |---|---|
