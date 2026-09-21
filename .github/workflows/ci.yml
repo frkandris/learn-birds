@@ -1,0 +1,43 @@
+name: CI
+
+# A deploy ettől független: a Coolify webhookja a pushra indul, a CI eredményétől
+# függetlenül. Ez a futás a hibát mutatja meg, nem tartja vissza.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Tesztek és wiki-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+
+  image:
+    name: Docker-image épülése
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: docker build -t learn-birds:ci .
+      - name: A kiszolgálás füstellenőrzése
+        run: |
+          docker run -d --name ci -p 8080:80 learn-birds:ci
+          sleep 3
+          expect() {  # útvonal, várt HTTP-kód, [további curl-kapcsolók]
+            path=$1; want=$2; shift 2
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$@" "http://localhost:8080$path")
+            echo "$path → $code (várt: $want)"
+            [ "$code" = "$want" ] || exit 1
+          }
+          expect / 200
+          expect /data/birds.json 200
+          expect /manifest.webmanifest 200
+          # A hang bájttartomány-kérésre 206-tal jön, különben Safari el sem indítja.
+          expect /media/hollo-1.m4a 206 -H 'Range: bytes=0-99'
+          docker rm -f ci

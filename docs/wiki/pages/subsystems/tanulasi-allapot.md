@@ -1,0 +1,40 @@
+---
+type: Subsystem
+title: Tanulási állapot (srs.js)
+description: Az ütemezés és a localStorage-ban tárolt állapot tiszta függvényei — a modul nem ismeri a DOM-ot, ezért Node-ból tesztelhető.
+tags: [module, srs, storage]
+status: stable
+generated: { by: claude-opus-5/claude-code, at: 2026-09-21T09:00:00Z }
+resource: public/srs.js
+---
+
+# Tanulási állapot (srs.js)
+
+*Minden, ami eldönti, mikor lát viszont a felhasználó egy madarat.*
+
+## Felület
+
+| Függvény | Mit ad |
+|---|---|
+| `loadState()` / `saveState()` / `clearState()` | a `learn-birds/v1` kulcs kezelése, kivételtűrően |
+| `pickSession(state, birds, mode, dose)` | a mai pakli fajai, sorrendben |
+| `schedule(state, birdId, mode, clean)` | lezár egy kártyát, visszaadja az új szintet és esedékességet |
+| `counts(state, birds, mode)` | `{due, fresh, learned, ready}` a Ma nézethez |
+| `cardStatus(state, birdId, mode)` | `new` / `due` / `resting` + szint, a Fajok nézethez |
+| `streak(state)` | hány napja gyakorol egyhuzamban |
+| `today()`, `daysUntil(day)` | helyi naptári nap, nem időbélyeg |
+
+## Amire figyelni kell
+
+- **A tárolás hibatűrő.** Privát ablakban a `localStorage` dobhat; a `try/catch`
+  ilyenkor üres állapottal indít, és a gyakorlás működik, csak nem marad meg.
+- **Naptári napok, nem 24 óra.** `addDays()` a helyi `Date` konstruktorral számol,
+  ami a nyári időszámítás váltását is normalizálja. Ne cseréld ms-alapú
+  aritmetikára.
+- **A `days` tömböt a `schedule()` írja**, nem a kör vége — így a félbehagyott kör
+  kártyái is beleszámítanak a napi statisztikába és a sorozatba.
+- **A séma verziózott** (`version: 1`). Ha a kártya alakja változik, a `loadState()`
+  migrációja itt a helye; jelenleg nincs migráció.
+
+Modell: [[ismetlesi-modell]], [[ket-keszseg-ket-pakli]]. Tesztek:
+[[teszteles-es-ci]].

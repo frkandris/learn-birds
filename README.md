@@ -44,6 +44,17 @@ indítható:
 (A helper a Coolify-tokent a `~/.config/strt/coolify-birds.env`-ből olvassa,
 hogy ne kerüljön parancssorba.)
 
+## Fejlesztés
+
+```sh
+npm test      # logikai tesztek (kör, ütemezés) + wiki-lint
+```
+
+A gyakorlókör és az ismétlés szabályait tesztek fedik; a felületet kézi füstteszt.
+A részletek — architektúra, döntések, hibák gyökéroka, runbookok — a
+[projekt wikijében](docs/wiki/index.md) vannak, a munkamenet-szabályok pedig a
+[CLAUDE.md](CLAUDE.md)-ben.
+
 ## Madarak hozzáadása
 
 A fajlista a `scripts/birds.js`-ben van. Vegyél fel egy sort a magyar
