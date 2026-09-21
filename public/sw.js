@@ -1,7 +1,7 @@
 // Offline gyorsítótár: telepítéskor bekerül az app és minden média,
 // hogy a gyakorlás térerő nélkül is menjen.
 
-const CACHE = 'madarak-v1';
+const CACHE = 'madarak-v2';
 
 const CORE = [
   './',
@@ -10,6 +10,7 @@ const CORE = [
   'fonts.css',
   'app.js',
   'srs.js',
+  'round.js',
   'audio.js',
   'manifest.webmanifest',
   'data/birds.json',

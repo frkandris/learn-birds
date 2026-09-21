@@ -7,7 +7,6 @@
 const KEY = 'learn-birds/v1';
 const STEPS = [1, 3, 7, 16, 35, 90]; // napok a 0., 1., … szinten
 export const MAX_LEVEL = STEPS.length;
-export const MODES = ['both', 'sound'];
 export const MODE_LABEL = { both: 'Kép és hang', sound: 'Csak hang' };
 
 export function today() {

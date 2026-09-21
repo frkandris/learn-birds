@@ -3,13 +3,15 @@ import {
   cardStatus, streak, daysUntil, today, MAX_LEVEL, MODE_LABEL,
 } from './srs.js';
 import { Player } from './audio.js';
+import { Round } from './round.js';
 
 const $ = (id) => document.getElementById(id);
 const DOSES = [3, 5, 8, 12];
 
 let birds = [];
 let state = loadState();
-let session = null;
+let round = null;
+let revealed = false;
 
 const player = new Player($('audio'), $('spectro'));
 
@@ -66,7 +68,7 @@ function renderToday() {
     const n = Math.min(count.ready || 0, dose);
     label.textContent = n || '↻';
     btn.disabled = !birds.some((b) => (mode === 'sound' ? b.audio.length : true));
-    btn.querySelector('.start-note').textContent = noteFor(mode, count, n);
+    btn.querySelector('.start-note').textContent = noteFor(mode, n);
   }
 
   const days = streak(state);
@@ -85,7 +87,7 @@ function describe(count, name) {
   return `${name}: ${parts.join(' és ')}.`;
 }
 
-function noteFor(mode, count, n) {
+function noteFor(mode, n) {
   const base = mode === 'both' ? 'Fotó és hangfelvétel — a teljes madár.' : 'Semmi kép. Ahogy a terepen hallod.';
   return n ? base : `${base} Mára kész, de átforgathatod újra.`;
 }
@@ -212,15 +214,7 @@ function startSession(mode) {
   if (!picked.length) return;
 
   player.unlock(); // még a gombnyomás gesztusán belül
-
-  session = {
-    mode,
-    queue: picked.map((bird) => ({ bird, failed: false, image: pick(bird.images), audio: pick(bird.audio) })),
-    order: picked.map((b) => b.id),
-    results: new Map(),
-    revealed: false,
-    started: Date.now(),
-  };
+  round = new Round({ mode, birds: picked });
 
   $('session').hidden = false;
   $('session').dataset.mode = mode;
@@ -230,21 +224,21 @@ function startSession(mode) {
 }
 
 function showCard() {
-  const item = session.queue[0];
+  const item = round.current;
   if (!item) return finishSession();
 
-  session.revealed = false;
+  revealed = false;
   $('card').classList.remove('revealed');
   $('answer').hidden = true;
   $('reveal').hidden = false;
   $('grade').hidden = true;
-  $('photo').hidden = session.mode !== 'both';
+  $('photo').hidden = round.mode !== 'both';
   $('sound').hidden = !item.audio;
   $('sound-hint').textContent = 'Koppints a hanghoz';
 
   if (item.image) {
     $('photo-img').src = item.image.file;
-    $('photo-img').alt = session.mode === 'both' ? 'A felismerendő madár fotója' : '';
+    $('photo-img').alt = round.mode === 'both' ? 'A felismerendő madár fotója' : '';
   }
 
   player.clear();
@@ -259,19 +253,16 @@ function showCard() {
 function renderProgress() {
   const box = $('progress');
   box.innerHTML = '';
-  const currentId = session.queue[0]?.bird.id;
-  for (const id of session.order) {
+  for (const { state: mark } of round.progress()) {
     const span = document.createElement('span');
-    const result = session.results.get(id);
-    if (result) span.className = result;
-    else if (id === currentId) span.className = 'now';
+    if (mark) span.className = mark;
     box.append(span);
   }
 }
 
 function reveal() {
-  const item = session.queue[0];
-  session.revealed = true;
+  const item = round.current;
+  revealed = true;
   $('card').classList.add('revealed');
   $('photo').hidden = !item.image;
   $('answer').hidden = false;
@@ -290,38 +281,26 @@ function credit(item) {
 }
 
 function grade(ok) {
-  const item = session.queue.shift();
-  const id = item.bird.id;
-
-  if (ok) {
-    schedule(state, id, session.mode, !item.failed);
+  const settled = round.grade(ok);
+  if (settled) {
+    schedule(state, settled.birdId, round.mode, settled.clean);
     saveState(state);
-    if (!session.results.has(id) || session.results.get(id) !== 'miss') {
-      session.results.set(id, item.failed ? 'miss' : 'done');
-    }
-  } else {
-    item.failed = true;
-    session.results.set(id, 'miss');
-    session.queue.push(item); // vissza a pakli végére, amíg nem sikerül
   }
-
   player.stop();
   showCard();
 }
 
 function finishSession() {
   const day = state.days[today()] ?? { cards: 0, clean: 0 };
-  const total = session.order.length;
-  const clean = [...session.results.values()].filter((v) => v === 'done').length;
-  const minutes = Math.max(1, Math.round((Date.now() - session.started) / 60000));
+  const { total, clean, missed, minutes } = round.summary();
 
-  $('done-kicker').textContent = MODE_LABEL[session.mode];
+  $('done-kicker').textContent = MODE_LABEL[round.mode];
   $('done-title').textContent = clean === total ? 'Mind elsőre megvolt' : 'Kör letudva';
   $('done-stats').innerHTML = '';
   const rows = [
     ['Madarak ebben a körben', `${total}`],
     ['Elsőre sikerült', `${clean}`],
-    ['Ismétlésre szorult', `${total - clean}`],
+    ['Ismétlésre szorult', `${missed}`],
     ['Eltelt idő', `${minutes} perc`],
     ['Ma összesen', `${day.cards} kártya`],
   ];
@@ -335,7 +314,7 @@ function finishSession() {
     $('done-stats').append(wrap);
   }
 
-  const mode = session.mode;
+  const mode = round.mode;
   closeSession();
   $('done').hidden = false;
   $('done-again').onclick = () => {
@@ -347,7 +326,8 @@ function finishSession() {
 function closeSession() {
   player.stop();
   player.clear();
-  session = null;
+  round = null;
+  revealed = false;
   $('session').hidden = true;
   document.body.style.overflow = '';
   renderToday();
@@ -396,16 +376,15 @@ function wire() {
     if (event.key === 'Escape') closeSession();
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
-      if (!session?.revealed) reveal();
+      if (!revealed) reveal();
     }
-    if (session?.revealed && (event.key === '1' || event.key === 'ArrowLeft')) grade(false);
-    if (session?.revealed && (event.key === '2' || event.key === 'ArrowRight')) grade(true);
+    if (revealed && (event.key === '1' || event.key === 'ArrowLeft')) grade(false);
+    if (revealed && (event.key === '2' || event.key === 'ArrowRight')) grade(true);
   });
 }
 
 /* ---------- apró segédek ---------- */
 
-const pick = (items) => (items.length ? items[Math.floor(Math.random() * items.length)] : null);
 const capitalize = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
 boot();

@@ -5,9 +5,12 @@
   "description": "Madárhatározó tanulókártyák (PWA) spaced repetitionnel",
   "type": "module",
   "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node --test test/",
     "fetch": "node scripts/fetch-birds.mjs",
-    "icons": "node scripts/make-icons.mjs",
-    "start": "node scripts/serve.mjs"
+    "icons": "node scripts/make-icons.mjs"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }
