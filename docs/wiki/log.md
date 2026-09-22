@@ -3,6 +3,7 @@
 Dátum szerint csoportosított napló, legújabb elöl. Formátum: [SCHEMA.md](SCHEMA.md).
 
 ## 2026-09-22
+- **Update**: A tároló betöltése kártyánként is szűr — egy esedékesség nélküli kártya eddig a fajlista kirajzolásakor kivételt dobott (`daysUntil(undefined)`); [[tanulasi-allapot]].
 - **Lint**: [[ismetlesi-modell]] — törölve a szabadgyakorlás-szakasz végén maradt régi mondat, ami szerint a szabadgyakorlás lépteti a szintet (a kód és az előző bekezdés szerint nem); a `srs.js` fejkommentje és a `Round` JSDoc-ja a harmadik módot is ismeri.
 - **Update**: Az automatikus indítás `player.play()`-t hív `toggle()` helyett — eddig ha a felhasználó a 320 ms-os késleltetésen belül maga elindította a hangot, az időzítő éppen megállította; [[hanglejatszas-es-szonogram]].
 - **Update**: Harmadik review kör (Opus 5.5, teljes kódbázis): a service worker telepítéskor a böngésző HTTP-gyorsítótárán át töltötte a médiát, amit az nginx egy napig frissnek jelöl — egy napon belüli új begyűjtés után a régi fájl került volna az új gyorsítótárba, a `MEDIA_STAMP` ellenére. Mostantól minden gyorsítótárba szánt letöltés `cache: 'reload'`, a 206-os részválasz helyett pedig a teljes fájl kerül be; [[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]] 3. pont, [[offline-gyorsitotar]].

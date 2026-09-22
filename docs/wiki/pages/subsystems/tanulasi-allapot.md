@@ -36,7 +36,10 @@ resource: public/srs.js
   kártyái is beleszámítanak a napi statisztikába és a sorozatba.
 - **A séma verziózott** (`version: 1`), és a betöltés normalizál: sérült JSON, rossz
   típusú `cards`/`days` vagy értelmetlen `dose` esetén üres alapértékkel indul, nem
-  száll el. Ha a kártya alakja változik, a migráció is ide kerül.
+  száll el. Kártyánként is szűr: esedékesség (`YYYY-MM-DD`) vagy érvényes szint
+  nélküli kártya kiesik, és a faj abban a módban újként indul — egyetlen hibás
+  bejegyzés miatt nem vész el a többi haladás, és nem száll el a fajlista.
+  Ha a kártya alakja változik, a migráció is ide kerül.
 
 Modell: [[ismetlesi-modell]], [[harom-mod-harom-pakli]]. Tesztek:
 [[teszteles-es-ci]].

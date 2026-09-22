@@ -59,9 +59,24 @@ function normalize(stored) {
   return {
     version: base.version,
     dose: Number.isFinite(stored.dose) && stored.dose > 0 ? stored.dose : base.dose,
-    cards: isPlain(stored.cards) ? stored.cards : {},
+    cards: isPlain(stored.cards) ? validCards(stored.cards) : {},
     days: isPlain(stored.days) ? stored.days : {},
   };
+}
+
+// Egy-egy kártya is lehet hibás; azt eldobjuk (a faj abban a módban újként
+// indul), a többi haladás viszont megmarad. Esedékesség nélkül a lista és a
+// pakli összeállítása is elszállna.
+function validCards(cards) {
+  const count = (value) => (Number.isFinite(value) && value >= 0 ? value : 0);
+  const out = {};
+  for (const [key, card] of Object.entries(cards)) {
+    if (!card || typeof card !== 'object') continue;
+    if (typeof card.due !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(card.due)) continue;
+    if (!Number.isInteger(card.level) || card.level < 0 || card.level > MAX_LEVEL) continue;
+    out[key] = { ...card, seen: count(card.seen), lapses: count(card.lapses) };
+  }
+  return out;
 }
 
 export function saveState(state) {

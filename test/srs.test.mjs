@@ -154,6 +154,29 @@ test('a sérült vagy régi sémájú tároló nem borítja fel az indulást', (
   }
 });
 
+test('a sérült kártya újként indul, az épek megmaradnak', () => {
+  const good = { level: 2, due: '2026-09-24', seen: 2, lapses: 0 };
+  const stored = {
+    dose: 3,
+    cards: {
+      'a|image': good,
+      'b|image': { level: 1 },                       // hiányzó esedékesség
+      'c|image': { level: 'sok', due: '2026-09-24' }, // rossz típusú szint
+      'd|image': null,
+    },
+    days: {},
+  };
+  globalThis.localStorage = { getItem: () => JSON.stringify(stored), setItem() {}, removeItem() {} };
+
+  const loaded = loadState();
+
+  assert.deepEqual(loaded.cards['a|image'], good);
+  for (const id of ['b', 'c', 'd']) {
+    assert.equal(cardStatus(loaded, id, 'image').state, 'new', `${id} újként indul`);
+  }
+  assert.doesNotThrow(() => counts(loaded, BIRDS, 'image'));
+});
+
 test('a napi statisztika a lezárt kártyákat gyűjti', () => {
   schedule(state, 'a', 'both', true);
   schedule(state, 'b', 'both', false);
