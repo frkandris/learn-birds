@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-22T08:11:12.059Z",
+  "generated": "2026-09-22T08:39:58.216Z",
   "birds": [
     {
       "id": "hazi-vereb",
@@ -186,6 +186,13 @@
           "license": "CC BY-SA 3.0",
           "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
           "source": "https://commons.wikimedia.org/wiki/File:Poecile_palustris.ogg"
+        },
+        {
+          "file": "media/baratcinege-2.m4a",
+          "author": "SanoAK: Alexander Kürthy",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:PoecilePalustrisCall.ogg"
         }
       ]
     },
@@ -569,6 +576,13 @@
           "license": "CC BY 3.0",
           "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
           "source": "https://commons.wikimedia.org/wiki/File:Delichon_urbicum_contact_call.ogg"
+        },
+        {
+          "file": "media/molnarfecske-2.m4a",
+          "author": "ismeretlen szerző",
+          "license": "CC BY 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+          "source": "https://commons.wikimedia.org/wiki/File:Common_House_Martin_(Delichon_urbica)_(W_DELICHON_URBICA_R3_C3).ogg"
         }
       ]
     },

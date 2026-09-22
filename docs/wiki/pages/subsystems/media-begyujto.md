@@ -18,16 +18,22 @@ resource: scripts/fetch-birds.mjs
 1. `wikidataMedia()` — SPARQL: `P225` taxonnév → `P18` kép, `P51` hang, angol címke.
 2. `categoryImages()` — `Category:<taxon>` fájljai, `width >= 1200`, szélesség
    szerint csökkenően.
-3. `searchImages()` / `searchAudio()` — Commons keresés tartalékként; a találat
-   fájlnevének tartalmaznia kell a tudományos nevet.
-4. `fileInfo()` — `imageinfo` + `categories` + `extmetadata` egy kéréssel; innen jön
+3. `searchImages()` / `searchAudio()` — Commons keresés tartalékként. A képeknél a
+   találat fájlnevének tartalmaznia kell a tudományos nevet; a hangoknál a keresés
+   **három néven** fut (tudományos név, a Wikidata `P1420` szinonimái, angol név),
+   és az illesztés betűsorra normalizál, mert a fájlnevekben a név hol szóközzel,
+   hol anélkül szerepel (`Poecile palustris.ogg` vs `PoecilePalustrisCall.ogg`).
+4. `categoryAudio()` — a faj kategóriájának hangfájljai. A kategória kurátorált,
+   ezért itt a fájlnévnek nem kell egyeznie; a kiejtés-felvételeket viszont ki kell
+   szűrni (`LL-…`, `De-…`, `Jer-…` és a *pronunciation* kategóriák).
+5. `fileInfo()` — `imageinfo` + `categories` + `extmetadata` egy kéréssel; innen jön
    a szerző, a licenc és a fájl oldalának URL-je.
-5. Szűrés: `IMAGE_BLOCKLIST` a **fájlnévre és a Commons-kategóriákra**;
+6. Szűrés: `IMAGE_BLOCKLIST` a **fájlnévre és a Commons-kategóriákra**;
    `AUDIO_BLOCKLIST` a Lingua Libre kiejtés-felvételekre.
-6. Rangsor: a Commons közösségi minősítései (`Quality images`, `Featured pictures`,
+7. Rangsor: a Commons közösségi minősítései (`Quality images`, `Featured pictures`,
    `Valued images`) előre kerülnek — ezeken a fotókon a madár jól látszik, nem csak
    rajta van a képen.
-7. Letöltés és átalakítás: kép 900 px szélességben a Commonstól; hang `ffmpeg`-gel
+8. Letöltés és átalakítás: kép 900 px szélességben a Commonstól; hang `ffmpeg`-gel
    22 s, mono, AAC 96k, `loudnorm`, fade, `+movflags faststart` ([[faststart-aac]]).
 
 Korlátok: `MAX_IMAGES = 2`, `MAX_AUDIO = 2` fajonként. A harmadik kép rendszeresen

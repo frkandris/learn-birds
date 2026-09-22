@@ -33,8 +33,15 @@ const IMAGE_BLOCKLIST =
 // tartalmazzák. Ahol van ilyen, azt választjuk előbb.
 const QUALITY_CATEGORY = /(Quality images|Featured pictures|Valued images)/i;
 
-// A kiejtés-felvételek (Lingua Libre) nem madárhangok, hanem beszélt szavak.
-const AUDIO_BLOCKLIST = /^File:LL-|pronunciation/i;
+// A kiejtés-felvételek nem madárhangok, hanem beszélt szavak: a Lingua Libre
+// fájljai (`LL-…`) és a Wikiszótár nyelvkód-előtagos felvételei (`De-…`,
+// `Jer-…`), amiket a kategóriájuk is elárul.
+const AUDIO_BLOCKLIST = /^File:LL-|^File:[A-Za-z]{2,3}-[A-Za-zÀ-ÿ]|pronunciation|spoken|Lingua Libre/i;
+
+// A fájlnevekben a tudományos név hol szóközzel, hol anélkül szerepel
+// (`Poecile palustris.ogg` vs `PoecilePalustrisCall.ogg`), ezért a
+// összevetés előtt mindkét oldalt egyszerű betűsorrá alakítjuk.
+const plainName = (text) => text.toLowerCase().replace(/[^a-z]/g, '');
 
 async function api(host, params) {
   const url = new URL(`https://${host}/w/api.php`);
@@ -61,21 +68,26 @@ function fileTitleFromUrl(url) {
 async function wikidataMedia(birds) {
   const values = birds.map((b) => `"${b.taxon}"`).join(' ');
   const rows = await sparql(`
-    SELECT ?taxon ?item ?image ?audio ?enLabel WHERE {
+    SELECT ?taxon ?item ?image ?audio ?synonym ?enLabel WHERE {
       VALUES ?taxon { ${values} }
       ?item wdt:P225 ?taxon .
       OPTIONAL { ?item wdt:P18 ?image }
       OPTIONAL { ?item wdt:P51 ?audio }
+      OPTIONAL { ?item wdt:P1420 ?synonym }
       OPTIONAL { ?item rdfs:label ?enLabel FILTER(lang(?enLabel) = "en") }
     }`);
 
   const byTaxon = new Map();
   for (const row of rows) {
     const taxon = row.taxon.value;
-    if (!byTaxon.has(taxon)) byTaxon.set(taxon, { qid: null, en: null, images: [], audio: [] });
+    if (!byTaxon.has(taxon)) byTaxon.set(taxon, { qid: null, en: null, images: [], audio: [], synonyms: [] });
     const entry = byTaxon.get(taxon);
     entry.qid ??= row.item.value.split('/').pop();
     entry.en ??= row.enLabel?.value ?? null;
+    // A régi tudományos nevek (pl. Parus palustris, Delichon urbica) sok
+    // Commons-fájl nevében ott vannak — nélkülük felvételek maradnának ki.
+    const synonym = row.synonym?.value;
+    if (synonym && !entry.synonyms.includes(synonym)) entry.synonyms.push(synonym);
     for (const [key, field] of [['images', 'image'], ['audio', 'audio']]) {
       const title = row[field] && fileTitleFromUrl(row[field].value);
       if (title && !entry[key].includes(title)) entry[key].push(title);
@@ -104,6 +116,23 @@ async function categoryImages(taxon) {
     .map((p) => p.title);
 }
 
+// A faj Commons-kategóriájában lévő hangfelvételek. A kategória kurátorált,
+// ezért itt a fájlnévnek nem kell tartalmaznia a fajnevet.
+async function categoryAudio(taxon) {
+  const data = await api('commons.wikimedia.org', {
+    action: 'query',
+    generator: 'categorymembers',
+    gcmtitle: `Category:${taxon}`,
+    gcmtype: 'file',
+    gcmlimit: '100',
+    prop: 'imageinfo',
+    iiprop: 'mediatype',
+  });
+  return (data.query?.pages ?? [])
+    .filter((page) => page.imageinfo?.[0]?.mediatype === 'AUDIO' && !AUDIO_BLOCKLIST.test(page.title))
+    .map((page) => page.title);
+}
+
 // Tartalék képforrás, ha a kategóriában kevés a használható fotó.
 async function searchImages(taxon) {
   const data = await api('commons.wikimedia.org', {
@@ -118,18 +147,20 @@ async function searchImages(taxon) {
     .filter((t) => t.toLowerCase().includes(taxon.toLowerCase()) && !IMAGE_BLOCKLIST.test(t));
 }
 
-// Madárhangok keresése: a xeno-canto felvételek fájlneve tartalmazza a fajnevet.
-async function searchAudio(taxon) {
+// Madárhangok keresése névre: a xeno-canto felvételek fájlneve tartalmazza a
+// faj nevét — tudományosan, régi néven vagy angolul.
+async function searchAudio(name) {
   const data = await api('commons.wikimedia.org', {
     action: 'query',
     list: 'search',
-    srsearch: `${taxon} filetype:audio`,
+    srsearch: `${name} filetype:audio`,
     srnamespace: '6',
     srlimit: '20',
   });
+  const needle = plainName(name);
   return (data.query?.search ?? [])
     .map((r) => r.title)
-    .filter((t) => t.toLowerCase().includes(taxon.toLowerCase()) && !AUDIO_BLOCKLIST.test(t));
+    .filter((title) => plainName(title).includes(needle) && !AUDIO_BLOCKLIST.test(title));
 }
 
 function plain(html) {
@@ -238,7 +269,14 @@ async function main() {
     ]
       .filter((title) => !skip(title))
       .slice(0, MAX_IMAGES * 3);
-    const audioTitles = [...new Set([...wd.audio, ...(await searchAudio(bird.taxon))])].slice(0, MAX_AUDIO * 3);
+    // Hangjelöltek: a Wikidata felvétele, a faj kategóriájának hangfájljai,
+    // végül keresés a tudományos néven, a régi neveken és az angol néven.
+    const names = [bird.taxon, ...wd.synonyms, wd.en].filter(Boolean);
+    const searched = [];
+    for (const name of names) searched.push(...(await searchAudio(name)));
+    const audioTitles = [...new Set([...wd.audio, ...(await categoryAudio(bird.taxon)), ...searched])]
+      .filter((title) => !AUDIO_BLOCKLIST.test(title))
+      .slice(0, MAX_AUDIO * 4);
     const info = await fileInfo([...imageTitles, ...audioTitles]);
 
     // A minősített képek előre; a többi megtartja az eredeti sorrendjét.
@@ -282,6 +320,11 @@ async function main() {
       }
       if (file.mediatype !== 'AUDIO') {
         console.warn(`  hang – nem hangfájl (${file.mediatype ?? file.mime}): ${title}`);
+        continue;
+      }
+      const spoken = file.categories.find((category) => AUDIO_BLOCKLIST.test(category));
+      if (spoken) {
+        console.warn(`  hang – kiejtés-felvétel (${spoken}): ${title}`);
         continue;
       }
       const name = `${bird.id}-${audio.length + 1}.m4a`;
