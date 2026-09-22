@@ -3,6 +3,7 @@
 Dátum szerint csoportosított napló, legújabb elöl. Formátum: [SCHEMA.md](SCHEMA.md).
 
 ## 2026-09-22
+- **Lint**: [[offline-gyorsitotar]] — a `v5` worker éles telepítése mérve: 133 bejegyzés (10 + 3 ikon + 12 betű + 108 média), csak a `v5` gyorsítótár maradt, a Range-kérés 206-ot és 100 bájtot ad; a korábban rögzített 131 hiányos telepítés volt.
 - **Update**: Billentyűzet és képernyőolvasó: az aktív fül `aria-current="page"`-et kap, az összegzés Escape-re bezárul, a módosítóval lenyomott billentyűt (pl. Alt+←) a gyakorlás nem értékelésnek veszi; [[felulet-vezerlo]].
 - **Update**: A tároló betöltése kártyánként is szűr — egy esedékesség nélküli kártya eddig a fajlista kirajzolásakor kivételt dobott (`daysUntil(undefined)`); [[tanulasi-allapot]].
 - **Lint**: [[ismetlesi-modell]] — törölve a szabadgyakorlás-szakasz végén maradt régi mondat, ami szerint a szabadgyakorlás lépteti a szintet (a kód és az előző bekezdés szerint nem); a `srs.js` fejkommentje és a `Round` JSDoc-ja a harmadik módot is ismeri.
