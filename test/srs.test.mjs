@@ -4,13 +4,16 @@
 
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { pickSession, schedule, counts, cardStatus, streak, daysUntil, today, MAX_LEVEL } from '../public/srs.js';
+import {
+  loadState, pickSession, schedule, counts, cardStatus, streak, daysUntil, today, usableIn,
+  MAX_LEVEL, MODES,
+} from '../public/srs.js';
 
-const bird = (id, { audio = true } = {}) => ({
+const bird = (id, { audio = true, images = true } = {}) => ({
   id,
   name: id,
   taxon: id,
-  images: [{ file: `${id}.jpg` }],
+  images: images ? [{ file: `${id}.jpg` }] : [],
   audio: audio ? [{ file: `${id}.m4a` }] : [],
 });
 
@@ -54,11 +57,20 @@ test('a hiba nullázza a szintet és másnapra hozza vissza', () => {
   assert.equal(card.lapses, 1);
 });
 
-test('a kép- és a hangfelismerés külön halad', () => {
-  schedule(state, 'a', 'both', true);
+test('a három mód külön halad ugyanazon a fajon', () => {
+  schedule(state, 'a', 'image', true);
 
-  assert.equal(cardStatus(state, 'a', 'both').state, 'resting');
+  assert.equal(cardStatus(state, 'a', 'image').state, 'resting');
   assert.equal(cardStatus(state, 'a', 'sound').state, 'new', 'a hang még érintetlen');
+  assert.equal(cardStatus(state, 'a', 'both').state, 'new', 'a kettős kártya is külön áll');
+});
+
+test('a módok igénye: a kép nélküli faj csak a hangos pakliba fér be', () => {
+  const nemaKep = bird('csak-hang', { images: false });
+
+  assert.equal(usableIn(nemaKep, 'sound'), true);
+  assert.equal(usableIn(nemaKep, 'image'), false);
+  assert.equal(usableIn(nemaKep, 'both'), false, 'a kettős mód mindkét médiát kéri');
 });
 
 test('a napi pakli előbb az esedékeseket hozza, a legrégebben esedékessel kezdve', () => {
@@ -75,6 +87,13 @@ test('a napi adag korlátozza a pakli méretét', () => {
   assert.equal(pickSession(state, BIRDS, 'both', 2).length, 2);
 });
 
+test('üres tárolóból induláskor a napi adag három', () => {
+  globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
+
+  assert.equal(loadState().dose, 3);
+  assert.deepEqual(MODES, ['image', 'sound', 'both']);
+});
+
 test('ha mindenki pihen, a soron következő ismétlések jönnek elő', () => {
   for (const b of BIRDS) state.cards[`${b.id}|both`] = { level: 2, due: dayOffset(7), seen: 1, lapses: 0 };
   state.cards['c|both'].due = dayOffset(2);
@@ -85,13 +104,14 @@ test('ha mindenki pihen, a soron következő ismétlések jönnek elő', () => {
   assert.equal(picked.length, 2);
 });
 
-test('hang nélküli faj nem kerül a csak hang paklijába', () => {
+test('hang nélküli faj nem kerül a hangos paklikba, a képesbe igen', () => {
   const birds = [bird('a'), bird('néma', { audio: false })];
 
-  const picked = pickSession(state, birds, 'sound', 5).map((b) => b.id);
-
-  assert.deepEqual(picked, ['a']);
+  assert.deepEqual(pickSession(state, birds, 'sound', 5).map((b) => b.id), ['a']);
+  assert.deepEqual(pickSession(state, birds, 'both', 5).map((b) => b.id), ['a']);
+  assert.deepEqual(pickSession(state, birds, 'image', 5).map((b) => b.id), ['a', 'néma']);
   assert.equal(counts(state, birds, 'sound').fresh, 1, 'a néma faj a számlálóból is kimarad');
+  assert.equal(counts(state, birds, 'image').fresh, 2);
 });
 
 test('a számlálók az esedékes, az új és a pihenő kártyákat különválasztják', () => {

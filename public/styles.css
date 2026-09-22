@@ -86,7 +86,15 @@ button { font: inherit; color: inherit; }
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
+.start-eye { border-left-color: var(--tit); }
 .start-ear { border-left-color: var(--sky); }
+
+/* A kettős mód szegélye felül a képet, alul a hangot idézi. */
+.start-pair {
+  border-left-color: transparent;
+  border-image: linear-gradient(180deg, var(--tit) 50%, var(--sky) 50%) 1;
+  border-image-width: 0 0 0 3px;
+}
 
 .start:hover { background: var(--moss); }
 .start:disabled { opacity: 0.45; cursor: default; }
@@ -110,7 +118,9 @@ button { font: inherit; color: inherit; }
   color: var(--tit);
 }
 
+.start-eye .start-count { color: var(--tit); }
 .start-ear .start-count { color: var(--sky); }
+.start-pair .start-count { color: var(--bone); }
 
 .dose {
   display: flex;
@@ -159,7 +169,7 @@ button { font: inherit; color: inherit; }
 
 .bird {
   display: grid;
-  grid-template-columns: 62px 1fr auto;
+  grid-template-columns: 66px 1fr auto;
   align-items: center;
   gap: 14px;
   padding: 12px 0;
@@ -169,8 +179,8 @@ button { font: inherit; color: inherit; }
 .bird:last-child { border-bottom: 1px solid var(--line); }
 
 .bird img {
-  width: 62px;
-  height: 62px;
+  width: 66px;
+  height: 66px;
   object-fit: cover;
   border-radius: 3px;
   background: var(--moss);
@@ -179,28 +189,32 @@ button { font: inherit; color: inherit; }
 .bird-name { font-family: var(--serif); font-size: 21px; font-weight: 700; line-height: 1.2; }
 .bird-latin { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--bone-faint); }
 
-.skills { display: grid; gap: 5px; justify-items: end; }
+.skills { display: grid; gap: 4px; justify-items: end; }
 
 .skill {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto 4.5em;
   align-items: center;
-  gap: 7px;
-  font-size: 13px;
+  gap: 6px;
+  font-size: 12px;
   color: var(--bone-faint);
 }
+
+.skill-label { font-variant-numeric: tabular-nums; }
+.skill-when { text-align: right; }
 
 .pips { display: flex; gap: 3px; }
 
 .pip {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   border: 1px solid var(--bone-faint);
 }
 
-.pip.on { background: var(--tit); border-color: var(--tit); }
-.skill.ear .pip.on { background: var(--sky); border-color: var(--sky); }
-.pip.due { background: var(--finch); border-color: var(--finch); }
+.skill.image .pip.on { background: var(--tit); border-color: var(--tit); }
+.skill.sound .pip.on { background: var(--sky); border-color: var(--sky); }
+.skill.both .pip.on { background: var(--bone); border-color: var(--bone); }
 
 .sources { display: grid; gap: 22px; }
 .source h2 { font-size: 22px; margin-bottom: 6px; }

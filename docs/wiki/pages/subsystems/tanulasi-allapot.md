@@ -21,6 +21,7 @@ resource: public/srs.js
 | `schedule(state, birdId, mode, clean)` | lezár egy kártyát, visszaadja az új szintet és esedékességet |
 | `counts(state, birds, mode)` | `{due, fresh, learned, ready}` a Ma nézethez |
 | `cardStatus(state, birdId, mode)` | `new` / `due` / `resting` + szint, a Fajok nézethez |
+| `usableIn(bird, mode)` | van-e a fajnak a módhoz kellő médiája (kép, hang, vagy mindkettő) |
 | `streak(state)` | hány napja gyakorol egyhuzamban |
 | `today()`, `daysUntil(day)` | helyi naptári nap, nem időbélyeg |
 
@@ -36,5 +37,5 @@ resource: public/srs.js
 - **A séma verziózott** (`version: 1`). Ha a kártya alakja változik, a `loadState()`
   migrációja itt a helye; jelenleg nincs migráció.
 
-Modell: [[ismetlesi-modell]], [[ket-keszseg-ket-pakli]]. Tesztek:
+Modell: [[ismetlesi-modell]], [[harom-mod-harom-pakli]]. Tesztek:
 [[teszteles-es-ci]].

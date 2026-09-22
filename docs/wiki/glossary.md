@@ -4,13 +4,14 @@ Rövid, egysoros meghatározások. A részletek a [[index]]-ből nyíló oldalak
 
 ## Tanulás
 
-- **Kártya** — egy faj egy módban (`<faj-id>|both` vagy `<faj-id>|sound`); ez az
-  ütemezés egysége. Lásd [[ket-keszseg-ket-pakli]].
+- **Kártya** — egy faj egy módban (`<faj-id>|image`, `|sound` vagy `|both`); ez az
+  ütemezés egysége. Lásd [[harom-mod-harom-pakli]].
+- **Mód** — a három gyakorlási forma: csak kép, csak hang, kép és hang.
 - **Szint (`level`)** — 0–6 közötti egész, ami megmondja, hányadik lépcsőn áll a
   kártya; a lépcsők 1/3/7/16/35/90 nap.
 - **Esedékesség (`due`)** — az a naptári nap, amikortól a kártya újra előkerül.
 - **Napi adag (`dose`)** — hány fajt akar a felhasználó egy körben gyakorolni
-  (3/5/8/12).
+  (3/5/8/12, alapból 3); módonként külön érvényes.
 - **Kör (round)** — egy gyakorlóalkalom; addig tart, amíg minden kiválasztott madár
   egyszer sikerül.
 - **`clean`** — elsőre sikerült-e; ez dönti el, hogy a szint nő-e vagy nullázódik.

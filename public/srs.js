@@ -7,7 +7,16 @@
 const KEY = 'learn-birds/v1';
 const STEPS = [1, 3, 7, 16, 35, 90]; // napok a 0., 1., … szinten
 export const MAX_LEVEL = STEPS.length;
-export const MODE_LABEL = { both: 'Kép és hang', sound: 'Csak hang' };
+export const MODES = ['image', 'sound', 'both'];
+export const MODE_LABEL = { image: 'Csak kép', sound: 'Csak hang', both: 'Kép és hang' };
+
+// Melyik mód mit igényel a fajtól: a kép nélküli faj a képes paklikból, a hang
+// nélküli a hangosakból marad ki.
+export function usableIn(bird, mode) {
+  if (mode === 'image') return bird.images.length > 0;
+  if (mode === 'sound') return bird.audio.length > 0;
+  return bird.images.length > 0 && bird.audio.length > 0;
+}
 
 export function today() {
   return toDay(new Date());
@@ -29,7 +38,7 @@ export function daysUntil(day) {
   return Math.round((then - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
 }
 
-const emptyState = () => ({ version: 1, dose: 5, cards: {}, days: {} });
+const emptyState = () => ({ version: 1, dose: 3, cards: {}, days: {} });
 
 export function loadState() {
   try {
@@ -74,7 +83,7 @@ export function cardStatus(state, birdId, mode) {
 // A mai pakli: előbb az esedékes ismétlések (a legrégebben esedékes elöl),
 // majd feltöltés még nem tanult fajokkal.
 export function pickSession(state, birds, mode, dose) {
-  const usable = birds.filter((b) => (mode === 'sound' ? b.audio.length : b.audio.length || b.images.length));
+  const usable = birds.filter((bird) => usableIn(bird, mode));
   const day = today();
 
   const due = usable
@@ -106,7 +115,7 @@ export function counts(state, birds, mode) {
   let fresh = 0;
   let learned = 0;
   for (const bird of birds) {
-    if (mode === 'sound' && !bird.audio.length) continue;
+    if (!usableIn(bird, mode)) continue;
     const card = getCard(state, bird.id, mode);
     if (!card) fresh += 1;
     else if (card.due <= day) due += 1;

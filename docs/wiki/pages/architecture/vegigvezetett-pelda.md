@@ -36,12 +36,12 @@ generated: { by: claude-opus-5/claude-code, at: 2026-09-21T09:00:00Z }
    `ffmpeg`-gel 22 másodperces, mono, 96 kbit/s AAC, `loudnorm`-mal és
    `+movflags faststart`-tal ([[faststart-aac]]).
 
-Eredmény: `public/media/kek-cinege-{1,2,3}.jpg`, `kek-cinege-{1,2}.m4a`, és egy
+Eredmény: `public/media/kek-cinege-{1,2}.jpg`, `kek-cinege-{1,2}.m4a`, és egy
 bejegyzés a `public/data/birds.json`-ban.
 
 ## 3. A kör összeállítása
 
-A „Kép és hang" gomb → `pickSession(state, birds, 'both', dose)`: előbb az esedékes
+A „Csak kép" / „Csak hang" / „Kép és hang" gomb → `pickSession(state, birds, mode, dose)`: előbb az esedékes
 ismétlések (legrégebben esedékes elöl), aztán a tanulatlan fajok, a napi adagig
 ([[ismetlesi-modell]]). A kiválasztott fajokból `new Round({mode, birds})`, ami
 fajonként rögzít egy képet és egy hangot ([[gyakorlokor-modul]]).
@@ -66,4 +66,4 @@ némán elakadna ([[2026-09-18-nema-lejatszas-felfuggesztett-audiocontext]]).
 
 Elsőre sikerült kártya: szint +1, a lépcső szerinti nap múlva. Hibás: szint 0,
 holnap. A Fajok nézet pöttyei ezt mutatják fajonként, külön a képre és a hangra
-([[ket-keszseg-ket-pakli]]).
+([[harom-mod-harom-pakli]]).

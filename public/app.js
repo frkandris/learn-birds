@@ -1,12 +1,19 @@
 import {
   loadState, saveState, clearState, pickSession, schedule, counts,
-  cardStatus, streak, daysUntil, today, MAX_LEVEL, MODE_LABEL,
+  cardStatus, streak, daysUntil, today, usableIn, MAX_LEVEL, MODES, MODE_LABEL,
 } from './srs.js';
 import { Player } from './audio.js';
 import { Round } from './round.js';
 
 const $ = (id) => document.getElementById(id);
 const DOSES = [3, 5, 8, 12];
+const START_BUTTON = { image: 'start-image', sound: 'start-sound', both: 'start-both' };
+const MODE_NOTE = {
+  image: 'Fotó, hang nélkül — a tollruha.',
+  sound: 'Semmi kép. Ahogy a terepen hallod.',
+  both: 'A kettő együtt — a teljes madár.',
+};
+const SKILL_LABEL = { image: 'kép', sound: 'hang', both: 'kép+hang' };
 
 let birds = [];
 let state = loadState();
@@ -47,49 +54,45 @@ async function boot() {
 /* ---------- Ma ---------- */
 
 function renderToday() {
-  const both = counts(state, birds, 'both');
-  const sound = counts(state, birds, 'sound');
-  const dose = state.dose;
-
   $('today-date').textContent = new Date().toLocaleDateString('hu-HU', {
     year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
   });
 
-  const ready = both.ready + sound.ready;
-  $('today-title').textContent = ready ? 'Mai adag' : 'Mára megvan';
-  $('today-lead').textContent = ready
-    ? `${describe(both, 'Kép és hang')} ${describe(sound, 'Csak hang')}`
-    : 'Minden faj pihen. Ha akarsz, akkor is gyakorolhatsz — a korán elővett kártyák nem rontják el az ütemezést.';
+  const byMode = new Map(MODES.map((mode) => [mode, counts(state, birds, mode)]));
+  const due = MODES.reduce((sum, mode) => sum + byMode.get(mode).due, 0);
+  const fresh = MODES.reduce((sum, mode) => sum + byMode.get(mode).fresh, 0);
 
-  for (const [mode, count, btn, label] of [
-    ['both', both, $('start-both'), $('count-both')],
-    ['sound', sound, $('start-sound'), $('count-sound')],
-  ]) {
-    const n = Math.min(count.ready || 0, dose);
-    label.textContent = n || '↻';
-    btn.disabled = !birds.some((b) => (mode === 'sound' ? b.audio.length : true));
-    btn.querySelector('.start-note').textContent = noteFor(mode, n);
+  $('today-title').textContent = due + fresh ? 'Mai adag' : 'Mára megvan';
+  $('today-lead').textContent = describe(due, fresh);
+
+  for (const mode of MODES) {
+    const count = byMode.get(mode);
+    const usable = birds.some((bird) => usableIn(bird, mode));
+    const ready = Math.min(count.ready, state.dose);
+    const button = $(START_BUTTON[mode]);
+    button.disabled = !usable;
+    button.querySelector('.start-count').textContent = usable ? ready || '↻' : '–';
+    button.querySelector('.start-note').textContent = usable
+      ? (ready ? MODE_NOTE[mode] : `${MODE_NOTE[mode]} Mára kész, de átforgathatod újra.`)
+      : 'Ehhez a módhoz még nincs elég média.';
   }
 
   const days = streak(state);
-  const learned = birds.filter((b) => cardStatus(state, b.id, 'both').state !== 'new').length;
+  const learned = birds.filter((bird) => MODES.some((mode) => cardStatus(state, bird.id, mode).state !== 'new')).length;
   $('today-foot').textContent = [
     days ? `${days} napja gyakorolsz egyhuzamban.` : 'Még nincs gyakorlónapod — kezdd el ma.',
-    learned ? `${learned} faj van a képes pakliban a ${birds.length}-ből.` : '',
+    learned ? `${learned} fajt láttál már a ${birds.length}-ből.` : '',
   ].filter(Boolean).join(' ');
 }
 
-function describe(count, name) {
-  if (!count.ready) return `${name}: minden faj pihen.`;
+function describe(due, fresh) {
+  if (!due && !fresh) {
+    return 'Minden faj pihen. Ha akarsz, akkor is gyakorolhatsz — a korán elővett kártyák nem rontják el az ütemezést.';
+  }
   const parts = [];
-  if (count.due) parts.push(`${count.due} ismétlés`);
-  if (count.fresh) parts.push(`${count.fresh} új faj`);
-  return `${name}: ${parts.join(' és ')}.`;
-}
-
-function noteFor(mode, n) {
-  const base = mode === 'both' ? 'Fotó és hangfelvétel — a teljes madár.' : 'Semmi kép. Ahogy a terepen hallod.';
-  return n ? base : `${base} Mára kész, de átforgathatod újra.`;
+  if (due) parts.push(`${due} ismétlés`);
+  if (fresh) parts.push(`${fresh} új kártya`);
+  return `${parts.join(' és ')} vár a három pakliban. Módonként legfeljebb ${state.dose} madár egy körben.`;
 }
 
 function renderDose() {
@@ -136,18 +139,22 @@ function renderBirds() {
 
     const skills = document.createElement('div');
     skills.className = 'skills';
-    skills.append(skillRow(bird, 'both', 'kép'), skillRow(bird, 'sound', 'hang'));
+    skills.append(...MODES.map((mode) => skillRow(bird, mode)));
 
     li.append(img, text, skills);
     list.append(li);
   }
 
-  $('birds-lead').textContent = `${birds.length} faj a pakliban. A pöttyök azt mutatják, milyen messzire tolódott a következő ismétlés.`;
+  $('birds-lead').textContent = `${birds.length} faj, módonként külön haladással. A pöttyök azt mutatják, milyen messzire tolódott a következő ismétlés.`;
 }
 
-function skillRow(bird, mode, label) {
+function skillRow(bird, mode) {
   const row = document.createElement('span');
-  row.className = `skill ${mode === 'sound' ? 'ear' : 'eye'}`;
+  row.className = `skill ${mode}`;
+
+  const label = document.createElement('span');
+  label.className = 'skill-label';
+  label.textContent = SKILL_LABEL[mode];
 
   const pips = document.createElement('span');
   pips.className = 'pips';
@@ -159,14 +166,14 @@ function skillRow(bird, mode, label) {
   }
 
   const when = document.createElement('span');
-  when.textContent = whenLabel(status, mode === 'sound' && !bird.audio.length);
-  row.append(pips, when);
-  row.title = `${label}: ${when.textContent}`;
+  when.className = 'skill-when';
+  when.textContent = whenLabel(status, !usableIn(bird, mode));
+  row.append(label, pips, when);
   return row;
 }
 
 function whenLabel(status, missing) {
-  if (missing) return 'nincs hang';
+  if (missing) return 'nincs média';
   if (status.state === 'new') return 'új';
   if (status.state === 'due') return 'ma';
   const days = daysUntil(status.due);
@@ -227,22 +234,25 @@ function showCard() {
   const item = round.current;
   if (!item) return finishSession();
 
+  const withPhoto = round.mode !== 'sound' && item.image;
+  const withSound = round.mode !== 'image' && item.audio;
+
   revealed = false;
   $('card').classList.remove('revealed');
   $('answer').hidden = true;
   $('reveal').hidden = false;
   $('grade').hidden = true;
-  $('photo').hidden = round.mode !== 'both';
-  $('sound').hidden = !item.audio;
+  $('photo').hidden = !withPhoto;
+  $('sound').hidden = !withSound;
   $('sound-hint').textContent = 'Koppints a hanghoz';
 
   if (item.image) {
     $('photo-img').src = item.image.file;
-    $('photo-img').alt = round.mode === 'both' ? 'A felismerendő madár fotója' : '';
+    $('photo-img').alt = withPhoto ? 'A felismerendő madár fotója' : '';
   }
 
   player.clear();
-  if (item.audio) {
+  if (withSound) {
     player.load(item.audio.file);
     setTimeout(() => player.toggle(), 320);
   }
@@ -276,7 +286,7 @@ function reveal() {
 function credit(item) {
   const parts = [];
   if (item.image) parts.push(`Fotó: ${item.image.author}`);
-  if (item.audio) parts.push(`Hang: ${item.audio.author}`);
+  if (round.mode !== 'image' && item.audio) parts.push(`Hang: ${item.audio.author}`);
   return parts.join(' · ');
 }
 
@@ -337,8 +347,7 @@ function closeSession() {
 /* ---------- események ---------- */
 
 function wire() {
-  $('start-both').addEventListener('click', () => startSession('both'));
-  $('start-sound').addEventListener('click', () => startSession('sound'));
+  for (const mode of MODES) $(START_BUTTON[mode]).addEventListener('click', () => startSession(mode));
   $('reveal').addEventListener('click', reveal);
   $('grade-good').addEventListener('click', () => grade(true));
   $('grade-again').addEventListener('click', () => grade(false));

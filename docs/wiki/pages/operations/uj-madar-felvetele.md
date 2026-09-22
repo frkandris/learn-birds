@@ -26,9 +26,14 @@ Az `id` a médiafájlok neve is lesz, tehát ékezet nélküli kebab-case.
 npm run fetch
 ```
 
-Fajonként legfeljebb 3 fotó és 2 hang. A kimenet felsorolja, mit választott és mit
+Fajonként legfeljebb 2 fotó és 2 hang. A kimenet felsorolja, mit választott és mit
 hagyott ki (`kép – kihagyva (Category:…)`). A script **mindent újraszed**, a meglévő
 `public/media/` törlődik — ez szándékos, hogy a készlet reprodukálható legyen.
+Egyetlen fajhoz elég a részleges futás:
+
+```sh
+node scripts/fetch-birds.mjs hazi-vereb
+```
 
 ## 3. Vizuális ellenőrzés (kötelező lépés)
 
@@ -39,8 +44,11 @@ A Commons kategóriái zajosak; volt már tojásfotó fajkép helyett
 cd public/media && i=0
 for f in *.jpg; do i=$((i+1)); ffmpeg -y -loglevel error -i "$f" \
   -vf "scale=300:225:force_original_aspect_ratio=increase,crop=300:225" "/tmp/thumbs/$(printf %02d $i).png"; done
-ffmpeg -y -loglevel error -pattern_type glob -i "/tmp/thumbs/*.png" -filter_complex "tile=3x6:padding=4:color=white" /tmp/contact.png
+ffmpeg -y -loglevel error -pattern_type glob -i "/tmp/thumbs/*.png" -filter_complex "tile=2x9:padding=4:color=white" /tmp/contact.png
 ```
+
+A rács soronként egy fajt mutasson (fajonként két kép), így egyben látszik, hogy a
+két fotó ugyanazt a madarat mutatja-e.
 
 Nézd át: valóban a fajt mutatja? Nem fióka, nem tojás, nem preparátum? A hangoknál
 elég belehallgatni egybe-kettőbe.
@@ -53,6 +61,11 @@ az új fájlokat — `sw.js`-t nem kell módosítani.
 
 ## Ha egy faj rossz képet kapott
 
-Bővítsd a tiltólistát a `scripts/fetch-birds.mjs` `IMAGE_BLOCKLIST`-jében (szóhatárral,
-lásd a `\bplate\b` esetét), és futtasd újra. Kézzel nem érdemes fájlt cserélni: a
-következő `npm run fetch` felülírná.
+Két eszköz van rá, és mindkettő a következő futásban is érvényes marad (kézzel
+cserélt fájlt a `npm run fetch` felülírna):
+
+1. Ha a hiba egy **osztály** (tojás, fészek, preparátum), bővítsd az
+   `IMAGE_BLOCKLIST`-et a `scripts/fetch-birds.mjs`-ben — szóhatárral, lásd a
+   `\bplate\b` esetét.
+2. Ha egy **konkrét fájl** rossz, vedd fel a faj `skipFiles` listájába a
+   `scripts/birds.js`-ben.

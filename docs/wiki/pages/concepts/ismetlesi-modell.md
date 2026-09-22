@@ -41,7 +41,9 @@ A modellnek két, egymástól független ritmusa van, és ezt könnyű összekev
 ## A napi pakli
 
 `pickSession()` sorrendje: esedékes ismétlések a legrégebben esedékessel kezdve →
-tanulatlan fajok → a napi adag (3/5/8/12) felső határáig. Ha mára minden faj pihen,
+tanulatlan fajok → a napi adag (3/5/8/12, alapból 3) felső határáig. A pakli
+módonként külön áll össze, és csak azokat a fajokat veszi, amikhez a mód médiája
+megvan (`usableIn()`). Ha mára minden faj pihen,
 a soron következő esedékességek jönnek elő, előrehozva — a szabadgyakorlás nem
 tiltott, de a szintet ilyenkor is lépteti.
 
@@ -50,8 +52,8 @@ tiltott, de a szintet ilyenkor is lépteti.
 `localStorage`, `learn-birds/v1` kulcs:
 
 ```json
-{ "version": 1, "dose": 5,
-  "cards": { "kek-cinege|both": { "level": 1, "due": "2026-09-24", "seen": 1, "lapses": 0 } },
+{ "version": 1, "dose": 3,
+  "cards": { "kek-cinege|image": { "level": 1, "due": "2026-09-24", "seen": 1, "lapses": 0 } },
   "days":  { "2026-09-21": { "cards": 5, "clean": 3 } } }
 ```
 
@@ -59,4 +61,4 @@ A `days` a sorozatszámításhoz és a napi statisztikához kell. A dátumok hel
 naptári napok (`YYYY-MM-DD`), nem időbélyegek — így az esedékesség éjfélkor vált,
 nem 24 órával az előző válasz után.
 
-Kapcsolódó: [[ket-keszseg-ket-pakli]], [[tanulasi-allapot]].
+Kapcsolódó: [[harom-mod-harom-pakli]], [[tanulasi-allapot]].

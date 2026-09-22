@@ -7,7 +7,7 @@
 // A média a public/media/ alá kerül, a licencinformációval együtt
 // (minden Commons-fájl szabad licencű, de a szerzőt fel kell tüntetni).
 
-import { mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, readdir, rm } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { dirname, join } from 'node:path';
@@ -19,9 +19,9 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const MEDIA_DIR = join(ROOT, 'public', 'media');
 const UA = 'learn-birds/1.0 (személyes tanulóalkalmazás; https://github.com/frkandris/learn-birds)';
 
-const MAX_IMAGES = 3;
+const MAX_IMAGES = 2;
 const MAX_AUDIO = 2;
-const IMAGE_WIDTH = 1000;
+const IMAGE_WIDTH = 900;
 const AUDIO_SECONDS = 22;
 
 // A faj kategóriájában sok olyan kép van, ami tanuláshoz félrevezető
@@ -29,6 +29,10 @@ const AUDIO_SECONDS = 22;
 // nem mindig árulkodó, ezért a Commons-kategóriákat is ugyanezzel szűrjük.
 const IMAGE_BLOCKLIST =
   /(egg|nest|chick|juvenil|fledgl|\bmap\b|distribution|range|skull|skelet|museum|specimen|mounted|illustrat|drawing|painting|\bplate\b|stamp|coin|logo|icon|diagram|sonogram|spectrogram|feather|footprint|taxidermy|dead|roadkill|MHNT|\bHdB\b|collection)/i;
+// A Commons közösségi minősítései: ezek a fotók a fajt jól mutatják, nem csak
+// tartalmazzák. Ahol van ilyen, azt választjuk előbb.
+const QUALITY_CATEGORY = /(Quality images|Featured pictures|Valued images)/i;
+
 // A kiejtés-felvételek (Lingua Libre) nem madárhangok, hanem beszélt szavak.
 const AUDIO_BLOCKLIST = /^File:LL-|pronunciation/i;
 
@@ -145,7 +149,7 @@ async function fileInfo(titles) {
     titles: titles.join('|'),
     prop: 'imageinfo|categories',
     cllimit: 'max',
-    iiprop: 'url|mime|extmetadata|size',
+    iiprop: 'url|mime|mediatype|extmetadata|size',
     iiurlwidth: String(IMAGE_WIDTH),
     iiextmetadatafilter: 'Artist|LicenseShortName|LicenseUrl|Credit',
   });
@@ -158,6 +162,9 @@ async function fileInfo(titles) {
       title: page.title,
       categories: (page.categories ?? []).map((c) => c.title),
       mime: info.mime,
+      // A Commons a régi Ogg-felvételeket application/ogg néven adja, ezért a
+      // fájl fajtáját a mediatype dönti el, nem a MIME-típus.
+      mediatype: info.mediatype,
       src: info.thumburl ?? info.url,
       original: info.url,
       page: info.descriptionurl,
@@ -192,32 +199,63 @@ async function transcodeAudio(input, output) {
 }
 
 async function main() {
-  await rm(MEDIA_DIR, { recursive: true, force: true });
+  // Argumentumként megadott faj-azonosítókra szűkíthető a futás; ilyenkor a
+  // többi faj médiája és adata érintetlen marad.
+  const only = process.argv.slice(2);
+  const targets = only.length ? BIRDS.filter((bird) => only.includes(bird.id)) : BIRDS;
+  if (only.length && targets.length !== only.length) {
+    const missing = only.filter((id) => !BIRDS.some((bird) => bird.id === id));
+    throw new Error(`ismeretlen faj-azonosító: ${missing.join(', ')}`);
+  }
+
+  if (only.length) {
+    const existing = await readdir(MEDIA_DIR).catch(() => []);
+    const prefixes = targets.map((bird) => `${bird.id}-`);
+    for (const file of existing) {
+      if (prefixes.some((prefix) => file.startsWith(prefix))) await rm(join(MEDIA_DIR, file));
+    }
+    console.log(`Részleges futás: ${targets.map((b) => b.hu).join(', ')}`);
+  } else {
+    await rm(MEDIA_DIR, { recursive: true, force: true });
+  }
   await mkdir(MEDIA_DIR, { recursive: true });
 
   console.log('Wikidata lekérdezés…');
-  const wikidata = await wikidataMedia(BIRDS);
+  const wikidata = await wikidataMedia(targets);
   const tmp = join(ROOT, 'node_modules', '.cache');
   await mkdir(tmp, { recursive: true });
 
   const result = [];
-  for (const bird of BIRDS) {
+  for (const bird of targets) {
     const wd = wikidata.get(bird.taxon) ?? { qid: null, en: null, images: [], audio: [] };
     console.log(`\n${bird.hu} (${bird.taxon})`);
+
+    const skip = (title) =>
+      IMAGE_BLOCKLIST.test(title) || (bird.skipFiles ?? []).some((part) => title.includes(part));
 
     const imageTitles = [
       ...new Set([...wd.images, ...(await categoryImages(bird.taxon)), ...(await searchImages(bird.taxon))]),
     ]
-      .filter((t) => !IMAGE_BLOCKLIST.test(t))
+      .filter((title) => !skip(title))
       .slice(0, MAX_IMAGES * 3);
     const audioTitles = [...new Set([...wd.audio, ...(await searchAudio(bird.taxon))])].slice(0, MAX_AUDIO * 3);
     const info = await fileInfo([...imageTitles, ...audioTitles]);
 
+    // A minősített képek előre; a többi megtartja az eredeti sorrendjét.
+    const ranked = [...imageTitles].sort((a, b) => {
+      const quality = (title) => (info.get(title)?.categories.some((c) => QUALITY_CATEGORY.test(c)) ? 0 : 1);
+      return quality(a) - quality(b);
+    });
+
     const images = [];
-    for (const title of imageTitles) {
+    for (const title of ranked) {
       if (images.length >= MAX_IMAGES) break;
       const file = info.get(title);
-      if (!file?.mime?.startsWith('image/')) continue;
+      if (!file) {
+        console.warn(`  kép  – nincs metaadat: ${title}`);
+        continue;
+      }
+      if (!['BITMAP', 'DRAWING'].includes(file.mediatype)) continue;
       const badCategory = file.categories.find((c) => IMAGE_BLOCKLIST.test(c));
       if (badCategory) {
         console.log(`  kép  – kihagyva (${badCategory}): ${title}`);
@@ -238,7 +276,14 @@ async function main() {
     for (const title of audioTitles) {
       if (audio.length >= MAX_AUDIO) break;
       const file = info.get(title);
-      if (!file?.mime?.startsWith('audio/')) continue;
+      if (!file) {
+        console.warn(`  hang – nincs metaadat: ${title}`);
+        continue;
+      }
+      if (file.mediatype !== 'AUDIO') {
+        console.warn(`  hang – nem hangfájl (${file.mediatype ?? file.mime}): ${title}`);
+        continue;
+      }
       const name = `${bird.id}-${audio.length + 1}.m4a`;
       const raw = join(tmp, `raw-${Date.now()}`);
       try {
@@ -261,8 +306,15 @@ async function main() {
   }
 
   const outFile = join(ROOT, 'public', 'data', 'birds.json');
-  await writeFile(outFile, JSON.stringify({ generated: new Date().toISOString(), birds: result }, null, 2) + '\n');
-  console.log(`\nKész: ${result.length} faj → ${outFile}`);
+  let birds = result;
+  if (only.length) {
+    // A részleges futás csak a frissített fajokat cseréli, a sorrend a listáé.
+    const previous = JSON.parse(await readFile(outFile, 'utf8')).birds;
+    const updated = new Map(result.map((bird) => [bird.id, bird]));
+    birds = BIRDS.map((bird) => updated.get(bird.id) ?? previous.find((p) => p.id === bird.id)).filter(Boolean);
+  }
+  await writeFile(outFile, JSON.stringify({ generated: new Date().toISOString(), birds }, null, 2) + '\n');
+  console.log(`\nKész: ${result.length} faj frissítve, ${birds.length} a fájlban → ${outFile}`);
 }
 
 main().catch((err) => {
