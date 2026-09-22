@@ -20,7 +20,7 @@ resource: public/app.js
 | Ma | `renderToday()`, `renderDose()` — a három mód indítógombja, napi adag, sorozat |
 | Fajok | `renderBirds()`, `skillRow()` — fajonként három pöttysor, esedékességgel. A sor `<details>`: koppintásra megnyílnak a faj fotói és felvételei (`fillDetail()`), forrással. Alul az offline jelzés, a forrásmegjelölés és a haladás törlése |
 | Gyakorlás | `startSession()`, `showCard()`, `reveal()`, `grade()`, `finishSession()` |
-| `wire()` | gombok, fülek, billentyűk (`szóköz` felfed, `1`/`2` értékel, `Esc` kilép) |
+| `wire()` | gombok, fülek, billentyűk (`szóköz` felfed, `1`/`2` értékel, `Esc` kilép, az összegzést is bezárja) |
 
 ## Modulszintű állapot
 
@@ -46,7 +46,10 @@ nincs reaktív állapotkezelés, a renderelés függvényhívásokból áll
   a megnyitáskor a felfedő gombra, felfedés után az értékelésre kerül.
 - **A billentyűkezelés nem nyeli el a fókuszált vezérlő billentyűit**: a szóköz és
   az Enter csak akkor fed fel, ha a fókusz nincs gombon — különben a lejátszógomb
-  billentyűzetről használhatatlan lenne.
+  billentyűzetről használhatatlan lenne. A módosítóval (Alt/Ctrl/Cmd) lenyomott
+  billentyű a böngészőé: az Alt+← eddig „vissza" helyett értékelt.
+- **Az aktív fül `aria-current="page"`**: az `is-current` osztály csak a szemnek
+  szól, a képernyőolvasó az attribútumból tudja, melyik nézet látszik.
 - **A fajlista natív lejátszói nincsenek a `Player` kezében**, ezért külön kell
   leállítani őket (panel becsukása, fülváltás, gyakorlás indítása), hogy ne szóljon
   két hang egyszerre.

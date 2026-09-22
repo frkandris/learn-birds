@@ -485,7 +485,12 @@ function wire() {
 
   for (const tab of document.querySelectorAll('.tab')) {
     tab.addEventListener('click', () => {
-      for (const other of document.querySelectorAll('.tab')) other.classList.toggle('is-current', other === tab);
+      for (const other of document.querySelectorAll('.tab')) {
+        other.classList.toggle('is-current', other === tab);
+        // A képernyőolvasó is tudja meg, melyik nézet aktív — az osztály csak a szemnek szól.
+        if (other === tab) other.setAttribute('aria-current', 'page');
+        else other.removeAttribute('aria-current');
+      }
       for (const view of document.querySelectorAll('.view')) view.hidden = view.dataset.view !== tab.dataset.tab;
       stopDetailAudio();
       window.scrollTo(0, 0);
@@ -493,6 +498,12 @@ function wire() {
   }
 
   document.addEventListener('keydown', (event) => {
+    // A módosítóval lenyomott billentyű a böngészőé (pl. Alt+← = vissza).
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === 'Escape' && !$('done').hidden) {
+      $('done-close').click();
+      return;
+    }
     if ($('session').hidden) return;
     if (event.key === 'Escape') closeSession();
     // A szóköz és az Enter a fókuszált gomb sajátja — a kártyát csak akkor
