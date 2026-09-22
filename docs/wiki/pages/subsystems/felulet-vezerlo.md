@@ -17,16 +17,16 @@ resource: public/app.js
 | Szakasz | Mit csinál |
 |---|---|
 | `boot()` | betölti a `data/birds.json`-t, rendereli a nézeteket, regisztrálja a service workert |
-| Ma | `renderToday()`, `renderDose()` — számlálók, napi adag, sorozat |
-| Fajok | `renderBirds()`, `skillRow()` — fajonként két pöttysor, esedékességgel |
-| Források | `renderSources()` — szerzők és licencek fajonként, linkkel a Commonsra |
+| Ma | `renderToday()`, `renderDose()` — a három mód indítógombja, napi adag, sorozat |
+| Fajok | `renderBirds()`, `skillRow()` — fajonként három pöttysor, esedékességgel; alul a forrásmegjelölés és a haladás törlése |
 | Gyakorlás | `startSession()`, `showCard()`, `reveal()`, `grade()`, `finishSession()` |
 | `wire()` | gombok, fülek, billentyűk (`szóköz` felfed, `1`/`2` értékel, `Esc` kilép) |
 
 ## Modulszintű állapot
 
 `birds` (a betöltött adat), `state` (tanulási állapot), `round` (az aktuális kör
-vagy `null`), `revealed` (látszik-e már a válasz). Ennyi — nincs keretrendszer és
+vagy `null`), `revealed` (látszik-e már a válasz), `freePractice` (nem esedékes
+kártyákat forgatunk-e), `autoPlay` (a hang időzítője, kártyaváltáskor törlendő). Ennyi — nincs keretrendszer és
 nincs reaktív állapotkezelés, a renderelés függvényhívásokból áll
 ([[2026-09-18-keretrendszer-nelkul]]).
 
@@ -37,7 +37,10 @@ nincs reaktív állapotkezelés, a renderelés függvényhívásokból áll
   ([[2026-09-18-nema-lejatszas-felfuggesztett-audiocontext]]).
 - **A service worker localhoston nem regisztrálódik**, hogy a fejlesztés alatt ne a
   gyorsítótárból jöjjön a kód ([[2026-09-18-regi-kod-a-gyorsitotarbol]]).
-- **A `data/birds.json` betöltése hibatűrő**: ha nincs webszerver (pl. `file://`),
-  a Ma nézet ezt írja ki, nem néma hibával áll meg.
+- **A `data/birds.json` betöltése hibatűrő**: HTTP-státuszt és sémát is ellenőriz, és
+  hiba esetén a Ma nézet ezt írja ki, nem néma hibával áll meg.
+- **A Ma nézet szándékosan szűkszavú**: cím, a három indítógomb, a napi adag, és a
+  sorozat is csak akkor, ha már van. Dátum, összegző mondat és külön Források fül
+  nem volt hasznos, ezért 2026-09-22-én kikerült.
 - Új modulnak be kell kerülnie a service worker `CORE` listájába, különben offline
   hiányzik ([[offline-gyorsitotar]]).

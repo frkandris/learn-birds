@@ -46,28 +46,23 @@ button { font: inherit; color: inherit; }
 
 /* ---------- Ma ---------- */
 
-.today-head { padding-top: 12px; }
-
-.today-date {
-  font-size: 15px;
-  letter-spacing: 0.01em;
-  color: var(--bone-faint);
-}
+.today-head { padding-top: 20px; }
 
 .today-title {
   font-size: clamp(38px, 12vw, 52px);
-  margin: 6px 0 10px;
+  margin: 0 0 10px;
   text-wrap: balance;
 }
 
 .today-title em { font-style: normal; color: var(--tit); }
 
-.today-lead { color: var(--bone-soft); max-width: 34ch; }
+.today-lead { color: var(--finch); max-width: 34ch; }  /* csak hibaüzenet */
+.today-lead[hidden] { display: none; }
 
 .start-stack {
   display: grid;
   gap: 12px;
-  margin: 30px 0 34px;
+  margin: 22px 0 34px;
 }
 
 .start {
@@ -216,14 +211,9 @@ button { font: inherit; color: inherit; }
 .skill.sound .pip.on { background: var(--sky); border-color: var(--sky); }
 .skill.both .pip.on { background: var(--bone); border-color: var(--bone); }
 
-.sources { display: grid; gap: 22px; }
-.source h2 { font-size: 22px; margin-bottom: 6px; }
-.source ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.source li { font-size: 14px; color: var(--bone-soft); line-height: 1.4; }
-.source a { color: var(--bone-soft); }
-.source .kind { color: var(--bone-faint); }
-
-.danger { margin-top: 36px; padding-top: 22px; border-top: 1px solid var(--line); }
+.danger { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--line); }
+.credit-note { font-size: 14px; color: var(--bone-faint); margin-bottom: 22px; max-width: 46ch; line-height: 1.45; }
+.credit-note a { color: var(--bone-soft); }
 .danger h2 { font-size: 22px; margin-bottom: 6px; }
 .danger p { color: var(--bone-soft); font-size: 15px; margin-bottom: 14px; max-width: 42ch; }
 

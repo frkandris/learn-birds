@@ -30,7 +30,7 @@ hálózati hívást nem tesz.
 
 ```
 public/
-  index.html     — a három nézet (Ma, Fajok, Források) + a gyakorlás overlay váza
+  index.html     — a két nézet (Ma, Fajok) + a gyakorlás overlay váza
   app.js         — nézetek renderelése, események, a kör vezérlése   [[felulet-vezerlo]]
   round.js       — a gyakorlókör szabályai, DOM nélkül               [[gyakorlokor-modul]]
   srs.js         — ütemezés és tanulási állapot                      [[tanulasi-allapot]]

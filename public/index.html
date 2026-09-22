@@ -23,9 +23,8 @@
   <!-- Mai adag -->
   <section class="view" id="view-today" data-view="today">
     <header class="today-head">
-      <p class="today-date" id="today-date"></p>
       <h1 class="today-title" id="today-title">Mai adag</h1>
-      <p class="today-lead" id="today-lead">Töltés…</p>
+      <p class="today-lead" id="today-lead" hidden></p>
     </header>
 
     <div class="start-stack">
@@ -61,16 +60,12 @@
       <p id="birds-lead">A pakli és az eddigi haladás.</p>
     </header>
     <ul class="bird-list" id="bird-list"></ul>
-  </section>
 
-  <!-- Források -->
-  <section class="view" id="view-sources" data-view="sources" hidden>
-    <header class="page-head">
-      <h1>Források</h1>
-      <p>Minden fotó és hangfelvétel a Wikimedia Commonsról való, szabad licenccel. A szerzők és a licencek fajonként:</p>
-    </header>
-    <div class="sources" id="sources"></div>
     <div class="danger">
+      <p class="credit-note">
+        A fotók és a hangfelvételek a <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commonsról</a>
+        valók, szabad licenccel; a szerzőjük minden kártyán ott van a név alatt.
+      </p>
       <h2>Haladás törlése</h2>
       <p>A gyakorlás eredménye csak ezen a készüléken, a böngészőben tárolódik. Törléssel minden faj visszaáll tanulatlanra.</p>
       <button class="btn btn-quiet" id="reset" type="button">Haladás törlése</button>
@@ -82,7 +77,6 @@
 <nav class="tabbar" aria-label="Fő navigáció">
   <button type="button" data-tab="today" class="tab is-current">Ma</button>
   <button type="button" data-tab="birds" class="tab">Fajok</button>
-  <button type="button" data-tab="sources" class="tab">Források</button>
 </nav>
 
 <!-- Gyakorlás -->

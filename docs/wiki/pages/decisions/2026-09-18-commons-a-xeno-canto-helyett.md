@@ -52,8 +52,8 @@ projektben, aminek egyébként egyetlen titka sincs.
 
 - A hangkeresés fájlnév-illesztésre épül (a tudományos névnek szerepelnie kell), ami
   nyersebb, mint egy rendes API-szűrő; cserébe a találatok javát a xeno-canto adja.
-- A licencek vegyesek (CC BY, CC BY-SA, CC0), ezért a szerző és a licenc fajonként
-  megjelenik a Források nézetben.
+- A licencek vegyesek (CC BY, CC BY-SA, CC0), ezért a szerző a felfedett kártyán
+  látszik, a licenc pedig a `birds.json`-ban van fajonként.
 - A Commons kategóriái zajosak — külön szűrés kellett
   ([[2026-09-18-tojasfoto-a-wikidatabol]]).
 

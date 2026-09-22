@@ -41,5 +41,7 @@ projekt a `UA` konstansban nevezi meg magát a repó URL-jével.
 
 ## Kötelezettség
 
-A szerző és a licenc minden fájlhoz megjelenik a Források nézetben, a fájl Commons-
-oldalára mutató hivatkozással. Ez nem opcionális: a CC BY/BY-SA megköveteli.
+A megjelenített fotó és felvétel **szerzője ott van a felfedett kártyán**, a licenc
+és a fájl Commons-oldalának címe pedig a `birds.json`-ban, fájlonként. A Fajok nézet
+alja megnevezi a forrást. Ez nem díszítés: a CC BY/BY-SA megköveteli az
+attribúciót.

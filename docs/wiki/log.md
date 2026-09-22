@@ -3,6 +3,7 @@
 Dátum szerint csoportosított napló, legújabb elöl. Formátum: [SCHEMA.md](SCHEMA.md).
 
 ## 2026-09-22
+- **Update**: A Ma nézetről lekerült a dátum, az összegző mondat és az üres állapot biztatása, a Források fül pedig megszűnt — a szerző a felfedett kártyán látszik, a licenc a `birds.json`-ban marad, a Fajok nézet alja megnevezi a forrást, és ott van a haladás törlése is. A sorozat csak akkor jelenik meg, ha már van mit mutatni.
 - **Update**: A barátcinegének és a molnárfecskének is meglett a második hangfelvétele: a keresés mostantól a régi tudományos neveken (Wikidata `P1420`) és az angol néven is fut, a faj kategóriájának hangfájljait is számba veszi, az illesztés pedig betűsorra normalizál — `PoecilePalustrisCall.ogg` a szóköz hiánya miatt esett ki korábban. A kiejtés-felvételeket (`De-…`, `Jer-…`) a fájlnév és a kategória alapján is szűrjük.
 - **Creation**: [[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]] — külső review (`codex review`) találta meg, hogy a cserélt média a telepített appban régi maradt volna (a `CACHE` neve nem emelkedett), és hogy a service worker a bájttartomány-kérésre teljes fájlt adott 200-zal, ami Safariban néma offline lejátszást jelent; mindkettő javítva (`madarak-v3`, `partial()`).
 - **Update**: A szabadgyakorlás már tényleg nem nyúl az ütemezéshez (`schedule(..., { reschedule: false })`) — eddig a felület ezt ígérte, a kód viszont léptette a szintet; a kör fejléce és az összegzés is jelzi, ha szabadgyakorlás folyik.

@@ -34,6 +34,7 @@ async function boot() {
     data = await res.json();
     if (!Array.isArray(data?.birds)) throw new Error('hiányzó birds tömb');
   } catch {
+    $('today-lead').hidden = false;
     $('today-lead').textContent = 'A madarak adatai nem töltődtek be. Indítsd az alkalmazást webszerverről (npm start).';
     return;
   }
@@ -42,7 +43,6 @@ async function boot() {
   renderDose();
   renderToday();
   renderBirds();
-  renderSources();
   wire();
 
   // Fejlesztés közben (localhost) nincs offline gyorsítótár, hogy a
@@ -58,16 +58,10 @@ async function boot() {
 /* ---------- Ma ---------- */
 
 function renderToday() {
-  $('today-date').textContent = new Date().toLocaleDateString('hu-HU', {
-    year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
-  });
-
   const byMode = new Map(MODES.map((mode) => [mode, counts(state, birds, mode)]));
-  const due = MODES.reduce((sum, mode) => sum + byMode.get(mode).due, 0);
-  const fresh = MODES.reduce((sum, mode) => sum + byMode.get(mode).fresh, 0);
+  const waiting = MODES.reduce((sum, mode) => sum + byMode.get(mode).ready, 0);
 
-  $('today-title').textContent = due + fresh ? 'Mai adag' : 'Mára megvan';
-  $('today-lead').textContent = describe(due, fresh);
+  $('today-title').textContent = waiting ? 'Mai adag' : 'Mára megvan';
 
   for (const mode of MODES) {
     const count = byMode.get(mode);
@@ -82,21 +76,7 @@ function renderToday() {
   }
 
   const days = streak(state);
-  const learned = birds.filter((bird) => MODES.some((mode) => cardStatus(state, bird.id, mode).state !== 'new')).length;
-  $('today-foot').textContent = [
-    days ? `${days} napja gyakorolsz egyhuzamban.` : 'Még nincs gyakorlónapod — kezdd el ma.',
-    learned ? `${learned} fajt láttál már a ${birds.length}-ből.` : '',
-  ].filter(Boolean).join(' ');
-}
-
-function describe(due, fresh) {
-  if (!due && !fresh) {
-    return 'Minden faj pihen. Ha akarsz, akkor is gyakorolhatsz — a korán elővett kártyák nem rontják el az ütemezést.';
-  }
-  const parts = [];
-  if (due) parts.push(`${due} ismétlés`);
-  if (fresh) parts.push(`${fresh} új kártya`);
-  return `${parts.join(' és ')} vár a három pakliban. Módonként legfeljebb ${state.dose} madár egy körben.`;
+  $('today-foot').textContent = days ? `${days} napja gyakorolsz egyhuzamban.` : '';
 }
 
 function renderDose() {
@@ -182,40 +162,6 @@ function whenLabel(status, missing) {
   if (status.state === 'due') return 'ma';
   const days = daysUntil(status.due);
   return days === 1 ? 'holnap' : `${days} nap`;
-}
-
-/* ---------- Források ---------- */
-
-function renderSources() {
-  const box = $('sources');
-  box.innerHTML = '';
-
-  for (const bird of birds) {
-    const block = document.createElement('div');
-    block.className = 'source';
-    const title = document.createElement('h2');
-    title.textContent = capitalize(bird.name);
-    const list = document.createElement('ul');
-
-    for (const [kind, items] of [['Fotó', bird.images], ['Hang', bird.audio]]) {
-      for (const item of items) {
-        const li = document.createElement('li');
-        const kindEl = document.createElement('span');
-        kindEl.className = 'kind';
-        kindEl.textContent = `${kind}: `;
-        const link = document.createElement('a');
-        link.href = item.source;
-        link.target = '_blank';
-        link.rel = 'noopener';
-        link.textContent = `${item.author} (${item.license})`;
-        li.append(kindEl, link);
-        list.append(li);
-      }
-    }
-
-    block.append(title, list);
-    box.append(block);
-  }
 }
 
 /* ---------- Gyakorlás ---------- */
@@ -381,6 +327,7 @@ function wire() {
     renderDose();
     renderToday();
     renderBirds();
+    window.scrollTo(0, 0);
   });
 
   player.onChange((event) => {
