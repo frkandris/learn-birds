@@ -7,7 +7,7 @@
 // maradna. A név változása telepít új workert, az pedig friss gyorsítótárat.
 const CACHE_PREFIX = 'madarak-';
 const MEDIA_STAMP = '20260922-0839';  // a fetch-birds.mjs írja, ne szerkeszd kézzel
-const CACHE = `${CACHE_PREFIX}v4-${MEDIA_STAMP}`;
+const CACHE = `${CACHE_PREFIX}v5-${MEDIA_STAMP}`;
 
 const CORE = [
   './',
@@ -23,6 +23,12 @@ const CORE = [
 ];
 
 const ICONS = ['icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
+
+// A gyorsítótárba szánt letöltés megkerüli a böngésző HTTP-gyorsítótárát. Az
+// nginx a médiát egy napig frissnek jelöli, így egy nap belüli új telepítés a
+// cserélt fájl helyett a régit kapná vissza — és cache-first révén örökre
+// megtartaná, hiába új a gyorsítótár neve.
+const fresh = (url) => new Request(url, { cache: 'reload' });
 
 async function mediaFiles() {
   try {
@@ -47,9 +53,9 @@ self.addEventListener('install', (event) => {
     const cache = await caches.open(CACHE);
     // Az app futásához kellő fájlok nélkül nincs értelme a telepítésnek, a
     // többi (ikon, média, betű) hiánya viszont nem buktathatja meg.
-    await cache.addAll(CORE);
+    await cache.addAll(CORE.map(fresh));
     const extras = [...ICONS, ...(await mediaFiles()), ...(await fontFiles())];
-    await Promise.all(extras.map((url) => cache.add(url).catch(() => {})));
+    await Promise.all(extras.map((url) => cache.add(fresh(url)).catch(() => {})));
     self.skipWaiting();
   })());
 });
@@ -118,7 +124,14 @@ self.addEventListener('fetch', (event) => {
       const cached = await cache.match(request, { ignoreSearch: true });
       if (cached) return partial(cached, request.headers.get('range'));
       const response = await fetch(request);
-      if (response.ok) cache.put(request, response.clone());
+      // A lejátszó bájttartományt kér, a 206-os választ viszont a Cache API
+      // nem tárolja (TypeError). Ilyenkor a teljes fájlt külön töltjük le —
+      // különben a telepítéskor kimaradt hang sosem kerülne a készülékre.
+      if (response.status === 200) {
+        cache.put(request, response.clone()).catch(() => {});
+      } else if (response.status === 206) {
+        event.waitUntil(cache.add(fresh(request.url)).catch(() => {}));
+      }
       return response;
     }
 

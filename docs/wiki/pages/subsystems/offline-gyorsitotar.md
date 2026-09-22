@@ -32,6 +32,17 @@ fájl miatt ne maradjon telepítetlen a worker. Tehát **új madár vagy új bet
 nem igényel sw.js-módosítást, új JS-modul viszont igen** — azt a `CORE` listába
 kézzel kell felvenni.
 
+Minden gyorsítótárba szánt letöltés `cache: 'reload'` módú kérés (`fresh()`),
+azaz megkerüli a böngésző HTTP-gyorsítótárát. Az nginx a médiát egy napig
+frissnek jelöli (`max-age=86400`), így enélkül egy napon belüli új telepítés a
+cserélt fájl helyett a régit kapná vissza, és a névváltás hiába épít új
+gyorsítótárat ([[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]], 3. pont).
+
+Ha egy médiafájl a telepítésből kimaradt, futás közben pótlódik: képnél a 200-as
+válasz kerül be, hangnál viszont a lejátszó 206-os részválaszt kap, amit a Cache
+API nem tárol (`cache.put` → `TypeError`) — ilyenkor a worker a teljes fájlt
+külön letölti.
+
 ## Bájttartomány-kérések
 
 A médialejátszók részletekben kérik a fájlt, és Safari **csak 206-os választ**
@@ -47,10 +58,10 @@ A `CACHE` név két részből áll:
 
 ```js
 const MEDIA_STAMP = '20260922-0839';  // a fetch-birds.mjs írja
-const CACHE = `${CACHE_PREFIX}v4-${MEDIA_STAMP}`;
+const CACHE = `${CACHE_PREFIX}v5-${MEDIA_STAMP}`;
 ```
 
-- A **kódverziót** (`v4`) kézzel emeljük, ha a worker logikája változik.
+- A **kódverziót** (`v5`) kézzel emeljük, ha a worker logikája változik.
 - A **médiabélyeget** a begyűjtés írja ide minden futás végén.
 
 Ez azért automatizált, mert kétszer is elmaradt kézzel: a fájlnevek nem

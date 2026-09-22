@@ -57,6 +57,27 @@ worker **elé** kerül, tehát telepítés után már ő válaszol. Safari pedig
 (`partial()`), kezelve a nyitott (`bytes=100-`) és a suffix (`bytes=-500`) alakot
 is, érvénytelen tartományra pedig 416-ot ad.
 
+## 3. Folytatás: a névváltás sem volt elég
+
+A harmadik review (2026-09-22 este, más modellel) ugyanennek a hibának egy
+harmadik útját találta meg. A worker telepítéskor `cache.add(url)`-lal töltötte
+le a médiát, ami a böngésző **HTTP-gyorsítótárán** át megy. Az nginx a médiát
+egy napig frissnek jelöli (élesben mérve: `cache-control: max-age=86400`), és
+az előző telepítés letöltései oda is bekerültek. Egy napon belüli újabb
+begyűjtés után tehát az új nevű gyorsítótár a **régi** fájlt kapta volna —
+pontosan az 1. pont tünete, csak most a `MEDIA_STAMP` ellenére.
+
+Ugyanitt a futás közbeni pótlás is hibás volt: hangfájlra a lejátszó
+bájttartományt kér, a hálózat 206-tal felel, a `cache.put` pedig 206-ra
+`TypeError`-t dob — a telepítéskor kimaradt hang így sosem került a készülékre.
+
+**Javítás:** minden gyorsítótárba szánt letöltés `cache: 'reload'` módú
+(`fresh()` a `sw.js`-ben), a 206-os válasz helyett pedig a teljes fájl kerül a
+gyorsítótárba; kódverzió `v5`.
+
+> A gyorsítótárnak rétegei vannak: a Cache Storage alatt ott a HTTP-gyorsítótár
+> is, a saját `max-age` fejlécünkkel. Egy réteg ürítése nem üríti a másikat.
+
 ## Tanulság
 
 - **A service worker elrejti a szerver helyes viselkedését.** Amit az nginx jól
