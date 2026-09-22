@@ -36,6 +36,10 @@ resource: scripts/fetch-birds.mjs
 8. Letöltés és átalakítás: kép 900 px szélességben a Commonstól; hang `ffmpeg`-gel
    22 s, mono, AAC 96k, `loudnorm`, fade, `+movflags faststart` ([[faststart-aac]]).
 
+A futás végén a script a `public/sw.js` `MEDIA_STAMP` sorát is átírja: enélkül a
+telepített appban a cserélt fájlok régi tartalma maradna
+([[offline-gyorsitotar]]).
+
 Korlátok: `MAX_IMAGES = 2`, `MAX_AUDIO = 2` fajonként. A harmadik kép rendszeresen
 gyenge volt (távoli madár, üres ág), mert fajonként elfogynak a jó jelöltek.
 

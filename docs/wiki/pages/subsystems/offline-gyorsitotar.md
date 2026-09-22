@@ -42,10 +42,23 @@ tartományra 416-tal. Enélkül a telepített app offline néma marad
 
 ## Verziózás
 
-A `CACHE` név (`madarak-v3`) a verzió. **Emelni kell, ha egy meglévő útvonal
-tartalma változik** — a média cache-first, tehát a régi fájl különben örökre a
-telepített appban maradna. Az aktiválás csak a saját `madarak-` prefixű
-gyorsítótárakat törli. A `skipWaiting()` +
+A `CACHE` név két részből áll:
+
+```js
+const MEDIA_STAMP = '20260922-0839';  // a fetch-birds.mjs írja
+const CACHE = `${CACHE_PREFIX}v4-${MEDIA_STAMP}`;
+```
+
+- A **kódverziót** (`v4`) kézzel emeljük, ha a worker logikája változik.
+- A **médiabélyeget** a begyűjtés írja ide minden futás végén.
+
+Ez azért automatizált, mert kétszer is elmaradt kézzel: a fájlnevek nem
+verziózottak (`tengelic-1.jpg`), tehát azonos néven cserélt fájl esetén a
+telepített appban a régi tartalom maradt volna, miközben a `birds.json` már az
+új szerzőt és licencet mutatja ([[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]]).
+A név változása új workert telepít, az pedig friss gyorsítótárat épít.
+
+Az aktiválás csak a saját `madarak-` prefixű gyorsítótárakat törli. A `skipWaiting()` +
 `clients.claim()` miatt az új worker azonnal átveszi az irányítást.
 
 ## Fejlesztés

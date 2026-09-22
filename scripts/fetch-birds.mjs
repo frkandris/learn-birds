@@ -258,7 +258,7 @@ async function main() {
 
   const result = [];
   for (const bird of targets) {
-    const wd = wikidata.get(bird.taxon) ?? { qid: null, en: null, images: [], audio: [] };
+    const wd = wikidata.get(bird.taxon) ?? { qid: null, en: null, images: [], audio: [], synonyms: [] };
     console.log(`\n${bird.hu} (${bird.taxon})`);
 
     const skip = (title) =>
@@ -356,8 +356,27 @@ async function main() {
     const updated = new Map(result.map((bird) => [bird.id, bird]));
     birds = BIRDS.map((bird) => updated.get(bird.id) ?? previous.find((p) => p.id === bird.id)).filter(Boolean);
   }
-  await writeFile(outFile, JSON.stringify({ generated: new Date().toISOString(), birds }, null, 2) + '\n');
+  const generated = new Date();
+  await writeFile(outFile, JSON.stringify({ generated: generated.toISOString(), birds }, null, 2) + '\n');
+  await stampServiceWorker(generated);
   console.log(`\nKész: ${result.length} faj frissítve, ${birds.length} a fájlban → ${outFile}`);
+}
+
+// A gyorsítótár nevébe írjuk a begyűjtés idejét: enélkül a telepített appban a
+// cserélt (azonos nevű) fájlok régi tartalma maradna, a szerző és a licenc
+// viszont már az újat mutatná.
+async function stampServiceWorker(generated) {
+  const file = join(ROOT, 'public', 'sw.js');
+  const iso = generated.toISOString();
+  const stamp = `${iso.slice(0, 10).replace(/-/g, '')}-${iso.slice(11, 16).replace(':', '')}`;
+  const source = await readFile(file, 'utf8');
+  const updated = source.replace(/const MEDIA_STAMP = '[^']*';/, `const MEDIA_STAMP = '${stamp}';`);
+  if (updated === source) {
+    console.warn('  ⚠︎ a sw.js MEDIA_STAMP sora nem található — a gyorsítótár verzióját kézzel kell emelni');
+    return;
+  }
+  await writeFile(file, updated);
+  console.log(`\nService worker gyorsítótár-bélyeg: ${stamp}`);
 }
 
 main().catch((err) => {

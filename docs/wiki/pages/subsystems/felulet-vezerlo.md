@@ -41,6 +41,15 @@ nincs reaktív állapotkezelés, a renderelés függvényhívásokból áll
   hiba esetén a Ma nézet ezt írja ki, nem néma hibával áll meg.
 - **A színek és a méretek mérve vannak, nem szemre hangolva**: a szövegszintek és a
   tapintható célpontok szabálya a [[2026-09-22-akadalymentessegi-alapszint]] oldalon.
+- **A gyakorlás és az összegzés modális**: `role="dialog"`, `aria-modal`, a
+  háttér `inert` (így se fókusszal, se képernyőolvasóval nem járható be), a fókusz
+  a megnyitáskor a felfedő gombra, felfedés után az értékelésre kerül.
+- **A billentyűkezelés nem nyeli el a fókuszált vezérlő billentyűit**: a szóköz és
+  az Enter csak akkor fed fel, ha a fókusz nincs gombon — különben a lejátszógomb
+  billentyűzetről használhatatlan lenne.
+- **A fajlista natív lejátszói nincsenek a `Player` kezében**, ezért külön kell
+  leállítani őket (panel becsukása, fülváltás, gyakorlás indítása), hogy ne szóljon
+  két hang egyszerre.
 - **A faj-részletek lustán épülnek**: a panel tartalmát a `toggle` esemény hozza
   létre, egyszer. 27 fajra előre legyártva fölösleges DOM és kérés lenne; a natív
   `<audio controls preload="none">` pedig csak lejátszáskor tölt.

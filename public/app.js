@@ -50,9 +50,16 @@ async function boot() {
   // módosított fájlok azonnal látszódjanak.
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
   if ('serviceWorker' in navigator && !local) {
-    navigator.serviceWorker.register('sw.js').catch(() => {
-      // Offline gyorsítótár nélkül is használható marad.
-    });
+    // Az első látogatáskor a jelzés csak a telepítés után lesz igaz, ezért az
+    // aktiválás után újra lefut — enélkül a következő oldalbetöltésig hallgatna.
+    navigator.serviceWorker.addEventListener('controllerchange', renderOfflineState);
+    navigator.serviceWorker
+      .register('sw.js')
+      .then(() => navigator.serviceWorker.ready)
+      .then(renderOfflineState)
+      .catch(() => {
+        // Offline gyorsítótár nélkül is használható marad.
+      });
   }
 }
 
@@ -141,6 +148,7 @@ function renderBirds() {
     // lejátszók előre legyártva fölösleges DOM-ot és kéréseket jelentenének.
     details.addEventListener('toggle', () => {
       if (details.open && !panel.childElementCount) fillDetail(panel, bird);
+      if (!details.open) stopDetailAudio(panel);
     });
 
     details.append(summary, panel);
@@ -219,16 +227,29 @@ function whenLabel(status, missing) {
 }
 
 // Ha a média már a készüléken van, azt érdemes tudni: onnantól térerő nélkül
-// is megy a gyakorlás. Fejlesztés közben (nincs service worker) nem látszik.
+// is megy a gyakorlás. A fájlok számából következtetni félrevezető lenne (az
+// app és a betűk maguktól is kitesznek tucatnyit), ezért tételesen nézzük meg,
+// hány fotó és felvétel van meg a gyorsítótárban.
 async function renderOfflineState() {
   const note = $('offline-note');
+  note.hidden = true;
   try {
-    if (!navigator.serviceWorker?.controller || !('caches' in window)) return;
-    const names = await caches.keys();
-    let files = 0;
-    for (const name of names) files += (await (await caches.open(name)).keys()).length;
-    if (files < 10) return;
-    note.textContent = `Offline is működik: ${files} fájl a készüléken.`;
+    if (!('caches' in window) || !navigator.serviceWorker?.controller) return;
+
+    const stored = new Set();
+    for (const name of await caches.keys()) {
+      for (const request of await (await caches.open(name)).keys()) {
+        stored.add(new URL(request.url).pathname);
+      }
+    }
+
+    const media = birds.flatMap((bird) => [...bird.images, ...bird.audio].map((item) => item.file));
+    const present = media.filter((file) => stored.has(new URL(file, location.href).pathname)).length;
+    if (!present) return;
+
+    note.textContent = present === media.length
+      ? `Offline is működik: mind a ${media.length} fotó és felvétel a készüléken van.`
+      : `Offline részben: ${present} a ${media.length} fotóból és felvételből van meg.`;
     note.hidden = false;
   } catch {
     // A gyorsítótár lekérdezése nem létfontosságú, a jelzés ilyenkor elmarad.
@@ -245,6 +266,8 @@ function startSession(mode) {
   round = new Round({ mode, birds: picked });
   freePractice = counts(state, birds, mode).ready === 0;
 
+  stopDetailAudio();
+  setBackgroundInert(true);
   $('session').hidden = false;
   $('session').dataset.mode = mode;
   $('session-mode').textContent = [
@@ -254,6 +277,24 @@ function startSession(mode) {
   ].filter(Boolean).join(' · ');
   document.body.style.overflow = 'hidden';
   showCard();
+  $('reveal').focus({ preventScroll: true });
+}
+
+// A gyakorlás és az összegzés modális réteg: amíg nyitva van, a mögötte lévő
+// felület ne legyen fókuszálható, se képernyőolvasóval bejárható.
+function setBackgroundInert(on) {
+  for (const el of [document.querySelector('.app'), document.querySelector('.tabbar')]) {
+    if (el) el.inert = on;
+  }
+}
+
+// A fajlista natív lejátszói nem a Player kezében vannak: gyakorlás indításakor,
+// fülváltáskor és a panel becsukásakor el kell hallgatniuk, különben két hang
+// szól egyszerre.
+function stopDetailAudio(root = document) {
+  for (const audio of root.querySelectorAll('.bird-detail audio')) {
+    if (!audio.paused) audio.pause();
+  }
 }
 
 function showCard() {
@@ -274,14 +315,19 @@ function showCard() {
 
   if (item.image) {
     const photo = $('photo-img');
+    const wanted = item.image.file;
     photo.classList.remove('ready');
     // Hibánál is megjelenítjük: jobb a böngésző törött-kép jelzése, mint egy
-    // üresnek tűnő kártya, amin a felhasználó hiába vár.
-    photo.onload = () => photo.classList.add('ready');
-    photo.onerror = () => photo.classList.add('ready');
-    photo.src = item.image.file;
+    // üresnek tűnő kártya. A késve érkező esemény viszont ne jelölje késznek a
+    // következő kártya képét — ezért ellenőrizzük, melyik fájlról van szó.
+    const markReady = () => {
+      if (photo.src.endsWith(wanted)) photo.classList.add('ready');
+    };
+    photo.onload = markReady;
+    photo.onerror = markReady;
+    photo.src = wanted;
     photo.alt = withPhoto ? 'A felismerendő madár fotója' : '';
-    if (photo.complete) photo.classList.add('ready'); // gyorsítótárból azonnal kész
+    if (photo.complete) markReady(); // gyorsítótárból azonnal kész
   }
 
   player.clear();
@@ -321,12 +367,19 @@ function reveal() {
   revealed = true;
   $('card').classList.add('revealed');
   $('photo').hidden = !item.image;
+  // Hang-módban a fotó csak most jelenik meg: eddig dekoratív volt, mostantól
+  // a válasz része.
+  if (item.image) $('photo-img').alt = `${capitalize(item.bird.name)} — a megfejtés fotója`;
   $('answer').hidden = false;
   $('reveal').hidden = true;
   $('grade').hidden = false;
   $('answer-name').textContent = capitalize(item.bird.name);
   $('answer-latin').textContent = item.bird.taxon;
   $('answer-credit').textContent = credit(item);
+  // A felfedő gomb eltűnt, és a következő lépés az értékelés: a fókusz oda
+  // kerül. (Feltételhez kötni nem lehet: mire ide érünk, a böngésző már
+  // elvette a fókuszt a rejtett gombtól.)
+  $('grade-good').focus({ preventScroll: true });
 }
 
 function credit(item) {
@@ -374,7 +427,9 @@ function finishSession() {
 
   const mode = round.mode;
   closeSession();
+  setBackgroundInert(true); // az összegzés is modális
   $('done').hidden = false;
+  $('done-close').focus({ preventScroll: true });
   $('done-again').onclick = () => {
     $('done').hidden = true;
     startSession(mode);
@@ -391,6 +446,7 @@ function closeSession() {
   freePractice = false;
   $('session').hidden = true;
   document.body.style.overflow = '';
+  setBackgroundInert(false);
   renderToday();
   renderBirds();
 }
@@ -406,6 +462,7 @@ function wire() {
   $('play').addEventListener('click', () => player.toggle());
   $('done-close').addEventListener('click', () => {
     $('done').hidden = true;
+    setBackgroundInert(false);
   });
 
   $('reset').addEventListener('click', () => {
@@ -429,6 +486,7 @@ function wire() {
     tab.addEventListener('click', () => {
       for (const other of document.querySelectorAll('.tab')) other.classList.toggle('is-current', other === tab);
       for (const view of document.querySelectorAll('.view')) view.hidden = view.dataset.view !== tab.dataset.tab;
+      stopDetailAudio();
       window.scrollTo(0, 0);
     });
   }
@@ -436,7 +494,11 @@ function wire() {
   document.addEventListener('keydown', (event) => {
     if ($('session').hidden) return;
     if (event.key === 'Escape') closeSession();
-    if (event.key === ' ' || event.key === 'Enter') {
+    // A szóköz és az Enter a fókuszált gomb sajátja — a kártyát csak akkor
+    // fedjük fel, ha a fókusz nincs vezérlőn (különben a lejátszógomb
+    // billentyűzetről használhatatlan lenne).
+    const onControl = document.activeElement?.closest('button, a, [role="button"], audio, input');
+    if ((event.key === ' ' || event.key === 'Enter') && !onControl) {
       event.preventDefault();
       if (!revealed) reveal();
     }

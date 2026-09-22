@@ -1,10 +1,13 @@
 // Offline gyorsítótár: telepítéskor bekerül az app és minden média,
 // hogy a gyakorlás térerő nélkül is menjen.
 
-// A verziót emelni kell, ha egy meglévő útvonal tartalma változik: a média
-// cache-first, tehát a régi fájl különben örökre a telepített appban maradna.
+// A gyorsítótár neve két részből áll. A kódverziót kézzel emeljük, ha a worker
+// logikája változik; a médiabélyeget a `npm run fetch` írja ide, mert a média
+// cache-first — azonos néven cserélt fájl különben örökre a telepített appban
+// maradna. A név változása telepít új workert, az pedig friss gyorsítótárat.
 const CACHE_PREFIX = 'madarak-';
-const CACHE = `${CACHE_PREFIX}v3`;
+const MEDIA_STAMP = '20260922-0839';  // a fetch-birds.mjs írja, ne szerkeszd kézzel
+const CACHE = `${CACHE_PREFIX}v4-${MEDIA_STAMP}`;
 
 const CORE = [
   './',
