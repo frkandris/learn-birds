@@ -32,7 +32,7 @@ generated: { by: claude-opus-5/claude-code, at: 2026-09-21T09:00:00Z }
    preparátum…) — ez fogta meg a [[2026-09-18-tojasfoto-a-wikidatabol]] esetet.
 5. **Metaadat**: `imageinfo` + `extmetadata` → `Artist`, `LicenseShortName` — a
    szerző a felfedett kártyára kerül, a licenc a `birds.json`-ba.
-6. **Átalakítás**: a kép a Commonstól 1000 px szélességben kérve; a hang
+6. **Átalakítás**: a kép a Commonstól 900 px szélességben kérve; a hang
    `ffmpeg`-gel 22 másodperces, mono, 96 kbit/s AAC, `loudnorm`-mal és
    `+movflags faststart`-tal ([[faststart-aac]]).
 

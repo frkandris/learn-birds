@@ -60,6 +60,7 @@ Gyökérszintű társak: [glossary.md](glossary.md) (fogalomtár), [faq.md](faq.
 - [[deploy-es-visszaallitas]] — A main-re érkező push automatikusan deployol; kézi indítás, állapotellenőrzés és visszaállítás a Coolify API-ból, token a parancssor megkerülésével.
 - [[fejlesztoi-futtatas]] — npm start a helyi kiszolgálóhoz, npm test a logikához, és a böngészős füstteszt lépései a felülethez.
 - [[iphone-telepites]] — Safari → Megosztás → Főképernyőhöz adás; HTTPS kell hozzá, a helyi hálózati cím nem elég, és a frissítés az ikonból indítva is megjön.
+- [[kulso-review]] — Hogyan nézessük át a munkát másik modellel és mérhető UI-ellenőrzőlistával — a két parancs, mit talált eddig, és mit nem érdemes tőlük várni.
 - [[teszteles-es-ci]] — A kockázatos logikát Node beépített tesztfutója fedi (kör, ütemezés, wiki-lint); a GitHub Actions ugyanezt futtatja, plusz a Docker-image épülését.
 - [[uj-madar-felvetele]] — Egy sor a scripts/birds.js-be, npm run fetch, a képek vizuális ellenőrzése kontaktlapon, majd commit — a média a repóban verziózva él.
 

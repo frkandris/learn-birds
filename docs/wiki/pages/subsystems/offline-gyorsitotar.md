@@ -11,7 +11,8 @@ resource: public/sw.js
 # Offline gyorsítótár (sw.js)
 
 *A gyakorlás térerő nélkül is megy: telepítéskor az app, a betűk és a teljes
-médiakészlet a gyorsítótárba kerül (27 fajnál ~160 fájl, nagyságrendileg 20 MB).*
+médiakészlet a gyorsítótárba kerül (27 fajnál 108 fotó és felvétel, az apppal és
+a betűkkel együtt 131 bejegyzés — 2026-09-22-i mérés az éles telepítésen).*
 
 ## Stratégia
 

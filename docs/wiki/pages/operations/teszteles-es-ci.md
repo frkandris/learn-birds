@@ -47,17 +47,10 @@ determinisztikusak legyenek.
 
 ## Külső review
 
-A gyorsítótár viselkedését és a böngészőfüggő médiaszerződést nem fedi unit teszt,
-ezért a nagyobb változások után érdemes külső modellel is átnézetni a diffet:
-
-```sh
-codex review --commit HEAD          # a commit változásaira
-codex exec --sandbox read-only "…"  # a teljes kódbázisra, prompt szerint
-```
-
-A 2026-09-22-i futás két valódi, csak telepített appban jelentkező hibát talált
-([[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]]), plusz egy ellentmondást a
-szabadgyakorlás felületi ígérete és az ütemezés között.
+A gyorsítótár viselkedését, a böngészőfüggő médiaszerződést és a felület
+akadálymentességét nem fedi unit teszt. Ezeket külső modellel és mérhető
+UI-ellenőrzőlistával nézzük át — a parancsok, az eddigi találatok és a
+korlátaik: [[kulso-review]].
 
 ## CI
 

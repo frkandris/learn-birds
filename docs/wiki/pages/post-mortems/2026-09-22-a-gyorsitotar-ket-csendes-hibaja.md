@@ -25,8 +25,18 @@ kép maradt volna — miközben a `birds.json` network-first frissül, tehát az
 szerző és licenc jelent volna meg a régi kép alatt**. Rossz attribúció és rossz
 tanulóanyag egyszerre.
 
-**Javítás:** `madarak-v3`, plusz a szabály kimondva a kódban: *a verziót emelni
-kell, ha egy meglévő útvonal tartalma változik.*
+**Javítás (első nekifutás):** `madarak-v3`, plusz a szabály kimondva a kódban: *a
+verziót emelni kell, ha egy meglévő útvonal tartalma változik.*
+
+**A szabály kimondása nem volt elég.** Néhány órával később, a hangkeresés
+javításakor és a képek kettőre csökkentésekor ugyanez megismétlődött: a média
+cserélődött, a verzió maradt. A következő review ezt újra megtalálta. Azóta a
+gyorsítótár neve két részből áll, és a médiabélyeget a begyűjtés írja a
+`sw.js`-be — kézzel nem lehet elfelejteni ([[offline-gyorsitotar]]).
+
+> Tanulság a tanulságról: egy dokumentált szabály, amit ugyanaz a kéz sért meg,
+> aki leírta, nem szabály, hanem emlékeztető. Ha a helyes lépés kiszámítható,
+> automatizálni kell.
 
 ## 2. A bájttartomány-kérésre teljes fájl jött
 
