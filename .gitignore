@@ -1,2 +1,7 @@
 node_modules/
 .DS_Store
+
+# AI-asszisztens skillek (uipro init). A tartalom a gépen él, nem a repóban:
+# ugyanezek globálisan is telepítve vannak (~/.claude/skills/), és a
+# frissítéseik nem a projekt változásai.
+.claude/skills/
