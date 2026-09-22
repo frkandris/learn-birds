@@ -39,6 +39,8 @@ nincs reaktív állapotkezelés, a renderelés függvényhívásokból áll
   gyorsítótárból jöjjön a kód ([[2026-09-18-regi-kod-a-gyorsitotarbol]]).
 - **A `data/birds.json` betöltése hibatűrő**: HTTP-státuszt és sémát is ellenőriz, és
   hiba esetén a Ma nézet ezt írja ki, nem néma hibával áll meg.
+- **A színek és a méretek mérve vannak, nem szemre hangolva**: a szövegszintek és a
+  tapintható célpontok szabálya a [[2026-09-22-akadalymentessegi-alapszint]] oldalon.
 - **A Ma nézet szándékosan szűkszavú**: cím, a három indítógomb, a napi adag, és a
   sorozat is csak akkor, ha már van. Dátum, összegző mondat és külön Források fül
   nem volt hasznos, ezért 2026-09-22-én kikerült.

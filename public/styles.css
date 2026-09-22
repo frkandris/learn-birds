@@ -6,9 +6,12 @@
   --shade-2: #17261e;
   --moss: #23362b;
   --bone: #f0ede2;
-  --bone-soft: rgba(240, 237, 226, 0.66);
-  --bone-faint: rgba(240, 237, 226, 0.4);
+  /* A három szövegszint úgy van beállítva, hogy a leghalványabb is 4.5:1 fölött
+     maradjon a legvilágosabb felületen (moss) — mérve, nem becsülve. */
+  --bone-soft: rgba(240, 237, 226, 0.78);
+  --bone-faint: rgba(240, 237, 226, 0.6);
   --line: rgba(240, 237, 226, 0.14);
+  --pip-line: rgba(240, 237, 226, 0.45);  /* dekoratív körvonal, nem szöveg */
   --tit: #e9c337;
   --sky: #5b8ed4;
   --finch: #c4372a;
@@ -32,6 +35,8 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
+  /* Koppintásra ne várjon a böngésző dupla-koppintásos nagyításra. */
+  touch-action: manipulation;
 }
 
 h1, h2 { font-family: var(--serif); font-weight: 700; line-height: 1.1; margin: 0; }
@@ -92,6 +97,7 @@ button { font: inherit; color: inherit; }
 }
 
 .start:hover { background: var(--moss); }
+.start:active { background: var(--moss); transform: scale(0.995); }
 .start:disabled { opacity: 0.45; cursor: default; }
 .start:disabled:hover { background: var(--shade-2); }
 
@@ -131,7 +137,8 @@ button { font: inherit; color: inherit; }
 .dose-options { display: flex; gap: 6px; }
 
 .dose-options button {
-  min-width: 42px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 7px 0;
   background: none;
   border: 1px solid var(--line);
@@ -139,6 +146,8 @@ button { font: inherit; color: inherit; }
   color: var(--bone-soft);
   cursor: pointer;
 }
+
+.dose-options button:active { background: var(--moss); }
 
 .dose-options button[aria-pressed='true'] {
   background: var(--tit);
@@ -188,10 +197,10 @@ button { font: inherit; color: inherit; }
 
 .skill {
   display: grid;
-  grid-template-columns: auto auto 4.5em;
+  grid-template-columns: auto auto 4.6em;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--bone-faint);
 }
 
@@ -204,7 +213,7 @@ button { font: inherit; color: inherit; }
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  border: 1px solid var(--bone-faint);
+  border: 1px solid var(--pip-line);
 }
 
 .skill.image .pip.on { background: var(--tit); border-color: var(--tit); }
@@ -244,6 +253,7 @@ button { font: inherit; color: inherit; }
 }
 
 .tab.is-current { color: var(--bone); background: var(--shade-2); }
+.tab:active { background: var(--moss); }
 
 /* ---------- Gyakorlás ---------- */
 
@@ -271,7 +281,13 @@ button { font: inherit; color: inherit; }
 }
 
 .session-close {
-  padding: 6px 0;
+  /* A kilépés a kör legfontosabb menekülőútja: a találati terület 44px, a
+     negatív margó miatt a felirat mégis a rács szélén marad. */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  margin: 0 0 0 -12px;
   background: none;
   border: none;
   color: var(--bone-faint);
@@ -320,6 +336,7 @@ button { font: inherit; color: inherit; }
   width: 100%;
   height: 100%;
   max-height: 58vh;
+  max-height: 58dvh;
   object-fit: cover;
   border-radius: var(--radius);
   background: var(--shade-2);
@@ -417,6 +434,7 @@ button { font: inherit; color: inherit; }
   font-weight: 700;
 }
 
+.btn:active { transform: scale(0.98); }
 .btn-again { border-color: rgba(196, 55, 42, 0.7); color: var(--bone); }
 .btn-quiet { color: var(--bone-soft); }
 .btn[hidden] { display: none; }
@@ -488,7 +506,7 @@ button { font: inherit; color: inherit; }
 .session[data-mode='both'] .play svg { width: 26px; height: 26px; }
 .session[data-mode='both'] .sound-hint { display: none; }
 
-.card.revealed .photo img { max-height: 36vh; }
+.card.revealed .photo img { max-height: 36vh; max-height: 36dvh; }
 .card.revealed .spectro { display: none; }
 .card.revealed .sound { padding: 10px 0 0; }
 .card.revealed .play { width: 56px; height: 56px; }
