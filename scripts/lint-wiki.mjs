@@ -46,6 +46,15 @@ export function lintWiki() {
   const problems = [];
   const pages = walk(PAGES);
   const names = new Set(pages.map((path) => basename(path, '.md')));
+
+  // A wikilinkek fájlnévre hivatkoznak, ezért két azonos nevű oldal két
+  // könyvtárban feloldhatatlan hivatkozást jelentene.
+  const seen = new Map();
+  for (const path of pages) {
+    const name = basename(path, '.md');
+    if (seen.has(name)) problems.push(`${path.slice(WIKI.length + 1)}: azonos nevű oldal már van (${seen.get(name)})`);
+    else seen.set(name, path.slice(WIKI.length + 1));
+  }
   const descriptions = new Map();
   const linked = new Set();
 

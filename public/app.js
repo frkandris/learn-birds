@@ -19,6 +19,8 @@ let birds = [];
 let state = loadState();
 let round = null;
 let revealed = false;
+let freePractice = false;  // ma már nem esedékes kártyákat forgatunk
+let autoPlay = null;       // a következő kártya hangjának időzítője
 
 const player = new Player($('audio'), $('spectro'));
 
@@ -28,12 +30,14 @@ async function boot() {
   let data;
   try {
     const res = await fetch('data/birds.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     data = await res.json();
+    if (!Array.isArray(data?.birds)) throw new Error('hiányzó birds tömb');
   } catch {
     $('today-lead').textContent = 'A madarak adatai nem töltődtek be. Indítsd az alkalmazást webszerverről (npm start).';
     return;
   }
-  birds = data.birds.filter((b) => b.images.length || b.audio.length);
+  birds = data.birds.filter((bird) => bird.images?.length || bird.audio?.length);
 
   renderDose();
   renderToday();
@@ -124,7 +128,7 @@ function renderBirds() {
     li.className = 'bird';
 
     const img = document.createElement('img');
-    img.src = bird.images[0]?.file ?? '';
+    if (bird.images[0]) img.src = bird.images[0].file;
     img.alt = '';
     img.loading = 'lazy';
 
@@ -222,10 +226,15 @@ function startSession(mode) {
 
   player.unlock(); // még a gombnyomás gesztusán belül
   round = new Round({ mode, birds: picked });
+  freePractice = counts(state, birds, mode).ready === 0;
 
   $('session').hidden = false;
   $('session').dataset.mode = mode;
-  $('session-mode').textContent = `${MODE_LABEL[mode]} · ${picked.length} madár`;
+  $('session-mode').textContent = [
+    MODE_LABEL[mode],
+    `${picked.length} madár`,
+    freePractice ? 'szabadgyakorlás — az ütemezés nem változik' : null,
+  ].filter(Boolean).join(' · ');
   document.body.style.overflow = 'hidden';
   showCard();
 }
@@ -252,9 +261,12 @@ function showCard() {
   }
 
   player.clear();
+  clearTimeout(autoPlay);
   if (withSound) {
     player.load(item.audio.file);
-    setTimeout(() => player.toggle(), 320);
+    // Rövid késleltetés, hogy a kártya előbb kirajzolódjon; ha közben tovább
+    // lépünk vagy kilépünk, ez az időzítő törlődik.
+    autoPlay = setTimeout(() => player.toggle(), 320);
   }
 
   renderProgress();
@@ -293,7 +305,7 @@ function credit(item) {
 function grade(ok) {
   const settled = round.grade(ok);
   if (settled) {
-    schedule(state, settled.birdId, round.mode, settled.clean);
+    schedule(state, settled.birdId, round.mode, settled.clean, { reschedule: !freePractice });
     saveState(state);
   }
   player.stop();
@@ -304,7 +316,9 @@ function finishSession() {
   const day = state.days[today()] ?? { cards: 0, clean: 0 };
   const { total, clean, missed, minutes } = round.summary();
 
-  $('done-kicker').textContent = MODE_LABEL[round.mode];
+  $('done-kicker').textContent = freePractice
+    ? `${MODE_LABEL[round.mode]} · szabadgyakorlás`
+    : MODE_LABEL[round.mode];
   $('done-title').textContent = clean === total ? 'Mind elsőre megvolt' : 'Kör letudva';
   $('done-stats').innerHTML = '';
   const rows = [
@@ -334,10 +348,13 @@ function finishSession() {
 }
 
 function closeSession() {
+  clearTimeout(autoPlay);
+  autoPlay = null;
   player.stop();
   player.clear();
   round = null;
   revealed = false;
+  freePractice = false;
   $('session').hidden = true;
   document.body.style.overflow = '';
   renderToday();
@@ -370,6 +387,7 @@ function wire() {
     $('play').classList.toggle('playing', event === 'play');
     $('play').setAttribute('aria-label', event === 'play' ? 'Hang megállítása' : 'Hang lejátszása');
     if (event === 'ended') $('sound-hint').textContent = 'Koppints, ha újra hallanád';
+    if (event === 'error') $('sound-hint').textContent = 'A hang nem indult el — koppints a gombra';
   });
 
   for (const tab of document.querySelectorAll('.tab')) {

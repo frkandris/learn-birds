@@ -14,7 +14,7 @@ export class Player {
     this.raf = null;
     this.listeners = new Set();
 
-    for (const event of ['play', 'pause', 'ended']) {
+    for (const event of ['play', 'pause', 'ended', 'error']) {
       audioEl.addEventListener(event, () => {
         if (event === 'play') this.#startDrawing();
         else this.#stopDrawing();
@@ -55,8 +55,9 @@ export class Player {
     try {
       await this.audio.play();
     } catch {
-      // Ha a lejátszás elakad (pl. megtagadott automatikus indítás),
-      // a gomb marad "lejátszás" állapotban, újra próbálható.
+      // Megtagadott automatikus indítás vagy dekódolási hiba: a kártya jelezze,
+      // hogy koppintani kell, ne maradjon néma gomb magyarázat nélkül.
+      this.listeners.forEach((fn) => fn('error'));
     }
   }
 

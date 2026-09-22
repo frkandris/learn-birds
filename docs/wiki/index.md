@@ -51,6 +51,7 @@ Gyökérszintű társak: [glossary.md](glossary.md) (fogalomtár), [faq.md](faq.
 - [[2026-09-18-nema-lejatszas-felfuggesztett-audiocontext]] — A hang „elindult", de a readyState 0 maradt: a Web Audio elemző felfüggesztett állapotban megállítja a rá kötött <audio> elem lejátszását.
 - [[2026-09-18-regi-kod-a-gyorsitotarbol]] — A cache-first service worker a módosított modulok helyett a telepítéskori változatot adta vissza, így a javítások látszólag hatástalanok maradtak.
 - [[2026-09-18-tojasfoto-a-wikidatabol]] — A Wikidata P18 képe egy múzeumi tojásgyűjtemény fotója volt; a fájlnév-alapú szűrés nem fogta meg, a Commons-kategóriák alapú igen.
+- [[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]] — Külső review derítette ki, hogy a cserélt média a telepített appban régi maradt volna, és hogy a service worker a bájttartomány-kérésre teljes fájlt adott — Safariban ez néma offline lejátszást jelent.
 - [[2026-09-22-nema-fajok-az-ogg-mime-tipus-miatt]] — A Commons az application/ogg típust adja a régi felvételekre, amit az audio/ előtagra szűrő feltétel csendben eldobott — a hiányt csak a begyűjtés összesítője mutatta.
 
 ## Runbookok

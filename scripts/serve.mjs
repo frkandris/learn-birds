@@ -27,8 +27,17 @@ const TYPES = {
 };
 
 createServer(async (req, res) => {
-  const path = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
-  let file = join(ROOT, normalize(path).replace(/^(\.\.[/\\])+/, ''));
+  let file;
+  try {
+    const path = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    file = join(ROOT, normalize(path).replace(/^(\.\.[/\\])+/, ''));
+  } catch {
+    // Hibás százalékkódolás: e nélkül a kivétel a kezelőn kívülre szállna,
+    // és a Node a kezeletlen elutasítás miatt leállítaná a szervert.
+    res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Hibás kérés');
+    return;
+  }
 
   try {
     if ((await stat(file)).isDirectory()) file = join(file, 'index.html');
@@ -36,10 +45,18 @@ createServer(async (req, res) => {
     const type = TYPES[extname(file)] ?? 'application/octet-stream';
 
     // A médialejátszók bájttartományt kérnek; Safari e nélkül el sem indul.
-    const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? '');
+    const range = /^bytes=(\d*)-(\d*)$/.exec((req.headers.range ?? '').trim());
     if (range) {
-      const start = range[1] ? Number(range[1]) : 0;
-      const end = range[2] ? Number(range[2]) : body.length - 1;
+      const suffix = range[1] === '';
+      const start = suffix ? Math.max(0, body.length - Number(range[2] || 0)) : Number(range[1]);
+      const end = suffix || range[2] === '' ? body.length - 1 : Math.min(Number(range[2]), body.length - 1);
+
+      if (!Number.isFinite(start) || !Number.isFinite(end) || start > end || start >= body.length) {
+        res.writeHead(416, { 'Content-Range': `bytes */${body.length}` });
+        res.end();
+        return;
+      }
+
       res.writeHead(206, {
         'Content-Type': type,
         'Content-Range': `bytes ${start}-${end}/${body.length}`,

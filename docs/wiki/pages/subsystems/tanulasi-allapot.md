@@ -18,7 +18,7 @@ resource: public/srs.js
 |---|---|
 | `loadState()` / `saveState()` / `clearState()` | a `learn-birds/v1` kulcs kezelése, kivételtűrően |
 | `pickSession(state, birds, mode, dose)` | a mai pakli fajai, sorrendben |
-| `schedule(state, birdId, mode, clean)` | lezár egy kártyát, visszaadja az új szintet és esedékességet |
+| `schedule(state, birdId, mode, clean, opts)` | lezár egy kártyát; `opts.reschedule: false` esetén (szabadgyakorlás) a szint és az esedékesség marad |
 | `counts(state, birds, mode)` | `{due, fresh, learned, ready}` a Ma nézethez |
 | `cardStatus(state, birdId, mode)` | `new` / `due` / `resting` + szint, a Fajok nézethez |
 | `usableIn(bird, mode)` | van-e a fajnak a módhoz kellő médiája (kép, hang, vagy mindkettő) |
@@ -34,8 +34,9 @@ resource: public/srs.js
   aritmetikára.
 - **A `days` tömböt a `schedule()` írja**, nem a kör vége — így a félbehagyott kör
   kártyái is beleszámítanak a napi statisztikába és a sorozatba.
-- **A séma verziózott** (`version: 1`). Ha a kártya alakja változik, a `loadState()`
-  migrációja itt a helye; jelenleg nincs migráció.
+- **A séma verziózott** (`version: 1`), és a betöltés normalizál: sérült JSON, rossz
+  típusú `cards`/`days` vagy értelmetlen `dose` esetén üres alapértékkel indul, nem
+  száll el. Ha a kártya alakja változik, a migráció is ide kerül.
 
 Modell: [[ismetlesi-modell]], [[harom-mod-harom-pakli]]. Tesztek:
 [[teszteles-es-ci]].

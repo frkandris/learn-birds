@@ -121,6 +121,39 @@ test('a számlálók az esedékes, az új és a pihenő kártyákat különvála
   assert.deepEqual(counts(state, BIRDS, 'both'), { due: 1, fresh: 2, learned: 1, ready: 3 });
 });
 
+test('a szabadgyakorlás nem tolja el az ütemezést', () => {
+  state.cards['a|both'] = { level: 2, due: dayOffset(7), seen: 1, lapses: 0 };
+
+  const card = schedule(state, 'a', 'both', true, { reschedule: false });
+
+  assert.equal(card.level, 2, 'a szint marad');
+  assert.equal(card.due, dayOffset(7), 'az esedékesség sem tolódik');
+  assert.equal(card.seen, 2, 'a találkozás viszont számít');
+  assert.deepEqual(state.days[today()], { cards: 1, clean: 1 }, 'és a napi statisztikába is bekerül');
+});
+
+test('a szabadgyakorlásban elrontott kártya sem esik vissza', () => {
+  state.cards['a|both'] = { level: 4, due: dayOffset(30), seen: 3, lapses: 0 };
+
+  const card = schedule(state, 'a', 'both', false, { reschedule: false });
+
+  assert.equal(card.level, 4);
+  assert.equal(card.due, dayOffset(30));
+  assert.equal(card.lapses, 1, 'a hiba jelzése megmarad a statisztikában');
+});
+
+test('a sérült vagy régi sémájú tároló nem borítja fel az indulást', () => {
+  const cases = ['{"cards":null}', '[]', 'null', '{"dose":"sok","cards":{}}', 'nem json'];
+
+  for (const raw of cases) {
+    globalThis.localStorage = { getItem: () => raw, setItem() {}, removeItem() {} };
+    const loaded = loadState();
+    assert.equal(typeof loaded.cards, 'object', `cards objektum marad: ${raw}`);
+    assert.ok(loaded.cards && !Array.isArray(loaded.cards));
+    assert.ok(Number.isFinite(loaded.dose) && loaded.dose > 0, `dose értelmes marad: ${raw}`);
+  }
+});
+
 test('a napi statisztika a lezárt kártyákat gyűjti', () => {
   schedule(state, 'a', 'both', true);
   schedule(state, 'b', 'both', false);

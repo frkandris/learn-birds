@@ -1,0 +1,61 @@
+---
+type: Post-mortem
+title: A gyorsítótár két csendes hibája
+description: Külső review derítette ki, hogy a cserélt média a telepített appban régi maradt volna, és hogy a service worker a bájttartomány-kérésre teljes fájlt adott — Safariban ez néma offline lejátszást jelent.
+tags: [service-worker, caching, audio, post-mortem, review]
+status: stable
+generated: { by: claude-opus-5/claude-code, at: 2026-09-22T12:00:00Z }
+resource: public/sw.js
+---
+
+# A gyorsítótár két csendes hibája
+
+*2026-09-22, a 27 fajra bővítés után: egyik hiba sem látszott a saját
+ellenőrzéseimen, mert mindkettő csak a **már telepített** appban jelentkezik.*
+
+## 1. A cserélt média régi maradt volna
+
+A médiafájlok neve a fajból és egy sorszámból áll (`tengelic-1.jpg`), a tartalmuk
+viszont a begyűjtés eredményétől függ. A bővítéskor sok fájl **azonos néven, más
+tartalommal** került a helyére.
+
+A service worker a médiát cache-first szolgálja ki, a `CACHE` neve
+(`madarak-v2`) viszont változatlan maradt. A már telepített appban ezért a régi
+kép maradt volna — miközben a `birds.json` network-first frissül, tehát az **új
+szerző és licenc jelent volna meg a régi kép alatt**. Rossz attribúció és rossz
+tanulóanyag egyszerre.
+
+**Javítás:** `madarak-v3`, plusz a szabály kimondva a kódban: *a verziót emelni
+kell, ha egy meglévő útvonal tartalma változik.*
+
+## 2. A bájttartomány-kérésre teljes fájl jött
+
+Mérés az éles címen, aktív service workerrel:
+
+```js
+const r = await fetch('media/hollo-1.m4a', { headers: { Range: 'bytes=0-99' } });
+r.status        // 200  ← 206 kellene
+(await r.arrayBuffer()).byteLength  // 269664  ← 100 kellene
+```
+
+A `cache.match()` a teljes választ adja vissza, a Range fejlécet figyelmen kívül
+hagyva. Az nginx oldalán rendben volt a 206 ([[faststart-aac]]) — de a service
+worker **elé** kerül, tehát telepítés után már ő válaszol. Safari pedig kizárólag
+206-ra indítja el a médiát: az offline hang iPhone-on néma maradt volna.
+
+**Javítás:** a worker a tárolt fájlból maga állítja elő a 206-os választ
+(`partial()`), kezelve a nyitott (`bytes=100-`) és a suffix (`bytes=-500`) alakot
+is, érvénytelen tartományra pedig 416-ot ad.
+
+## Tanulság
+
+- **A service worker elrejti a szerver helyes viselkedését.** Amit az nginx jól
+  csinál, azt telepítés után már nem a felhasználó látja. A médiaszerződést
+  (MIME, `Accept-Ranges`, 206) a workerben is teljesíteni kell.
+- **A „nem látszik a fejlesztés közben" hibák a legveszélyesebbek**: localhoston
+  nincs worker ([[2026-09-18-regi-kod-a-gyorsitotarbol]]), tehát minden
+  gyorsítótár-hiba csak éles telepítésen jelentkezik. Az éles ellenőrzés
+  (`caches.keys()`, egy Range-fetch a konzolból) nem kihagyható lépés.
+- Mindkét hibát **külső review** találta meg, nem a tesztek — a gyorsítótár
+  viselkedése ugyanis nincs (és nehezen lenne) lefedve unit teszttel
+  ([[teszteles-es-ci]]).

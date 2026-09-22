@@ -43,7 +43,15 @@ A modellnek két, egymástól független ritmusa van, és ezt könnyű összekev
 `pickSession()` sorrendje: esedékes ismétlések a legrégebben esedékessel kezdve →
 tanulatlan fajok → a napi adag (3/5/8/12, alapból 3) felső határáig. A pakli
 módonként külön áll össze, és csak azokat a fajokat veszi, amikhez a mód médiája
-megvan (`usableIn()`). Ha mára minden faj pihen,
+megvan (`usableIn()`).
+
+## Szabadgyakorlás
+
+Ha mára minden faj pihen, a soron következő esedékességek jönnek elő, előrehozva —
+de ilyenkor **az ütemezés nem változik**: a kártya szintje és esedékessége marad, a
+válasz csak a napi statisztikába és a `seen` számlálóba kerül. Egy korán elővett
+kártya nem érdemel jutalmat (hetekkel odébb tolt ismétlést), és nem is büntetendő.
+A kör fejléce és az összegzés is jelzi, hogy szabadgyakorlás folyik. Ha mára minden faj pihen,
 a soron következő esedékességek jönnek elő, előrehozva — a szabadgyakorlás nem
 tiltott, de a szintet ilyenkor is lépteti.
 

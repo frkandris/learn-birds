@@ -45,6 +45,20 @@ determinisztikusak legyenek.
   változik. A kimenetét vizuális ellenőrzés fedi ([[uj-madar-felvetele]]).
 - **A hanglejátszás**: valódi böngésző és hangkimenet kellene hozzá.
 
+## Külső review
+
+A gyorsítótár viselkedését és a böngészőfüggő médiaszerződést nem fedi unit teszt,
+ezért a nagyobb változások után érdemes külső modellel is átnézetni a diffet:
+
+```sh
+codex review --commit HEAD          # a commit változásaira
+codex exec --sandbox read-only "…"  # a teljes kódbázisra, prompt szerint
+```
+
+A 2026-09-22-i futás két valódi, csak telepített appban jelentkező hibát talált
+([[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]]), plusz egy ellentmondást a
+szabadgyakorlás felületi ígérete és az ütemezés között.
+
 ## CI
 
 `.github/workflows/ci.yml` minden pushra és PR-re:

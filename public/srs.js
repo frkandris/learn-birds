@@ -44,10 +44,24 @@ export function loadState() {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return emptyState();
-    return { ...emptyState(), ...JSON.parse(raw) };
+    return normalize(JSON.parse(raw));
   } catch {
     return emptyState();
   }
+}
+
+// A tároló tartalma sérült vagy régi sémájú is lehet; a hiányzó vagy rossz
+// típusú mezők miatt ne boruljon fel az app, inkább induljunk üresen.
+function normalize(stored) {
+  const base = emptyState();
+  if (!stored || typeof stored !== 'object') return base;
+  const isPlain = (value) => value && typeof value === 'object' && !Array.isArray(value);
+  return {
+    version: base.version,
+    dose: Number.isFinite(stored.dose) && stored.dose > 0 ? stored.dose : base.dose,
+    cards: isPlain(stored.cards) ? stored.cards : {},
+    days: isPlain(stored.days) ? stored.days : {},
+  };
 }
 
 export function saveState(state) {
@@ -125,19 +139,31 @@ export function counts(state, birds, mode) {
 }
 
 // Egy kártya lezárása a gyakorlás végén. `clean` = elsőre sikerült.
-export function schedule(state, birdId, mode, clean) {
+//
+// `reschedule: false` esetén a kártya szintje és esedékessége változatlan marad:
+// ez a szabadgyakorlás, amikor a felhasználó olyan kártyát vesz elő, ami még nem
+// volt esedékes. Egy korán elővett válasz nem érdemel jutalmat (hetekkel odébb
+// tolt ismétlést), és nem is büntetendő — csak a napi statisztikába számít.
+export function schedule(state, birdId, mode, clean, { reschedule = true } = {}) {
   const key = cardKey(birdId, mode);
   const card = state.cards[key] ?? { level: 0, due: today(), seen: 0, lapses: 0 };
   const level = clean ? Math.min(card.level + 1, MAX_LEVEL) : 0;
   const interval = STEPS[Math.min(level, STEPS.length - 1)];
 
-  state.cards[key] = {
-    level,
-    due: addDays(today(), clean ? interval : 1),
-    seen: card.seen + 1,
-    lapses: card.lapses + (clean ? 0 : 1),
-    last: today(),
-  };
+  state.cards[key] = reschedule
+    ? {
+        level,
+        due: addDays(today(), clean ? interval : 1),
+        seen: card.seen + 1,
+        lapses: card.lapses + (clean ? 0 : 1),
+        last: today(),
+      }
+    : {
+        ...card,
+        seen: card.seen + 1,
+        lapses: card.lapses + (clean ? 0 : 1),
+        last: today(),
+      };
 
   const day = (state.days[today()] ??= { cards: 0, clean: 0 });
   day.cards += 1;
