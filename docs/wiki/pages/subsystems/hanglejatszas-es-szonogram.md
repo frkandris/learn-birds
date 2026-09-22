@@ -17,10 +17,11 @@ jelenlegi alakját.*
 
 ```js
 const player = new Player(audioElement, canvas);
-player.onChange(fn);   // 'play' | 'pause' | 'ended'
+player.onChange(fn);   // 'play' | 'pause' | 'ended' | 'error'
 player.unlock();       // felhasználói gesztusból: AudioContext indítása
 player.load(url);      // új felvétel, rajz törlése
-player.toggle();       // lejátszás/szünet
+player.toggle();       // lejátszás/szünet (a lejátszógomb)
+player.play();         // elejéről indít, szól már, nem nyúl hozzá (automatikus indítás)
 player.stop(); player.clear();
 ```
 

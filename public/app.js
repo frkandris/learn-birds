@@ -335,8 +335,9 @@ function showCard() {
   if (withSound) {
     player.load(item.audio.file);
     // Rövid késleltetés, hogy a kártya előbb kirajzolódjon; ha közben tovább
-    // lépünk vagy kilépünk, ez az időzítő törlődik.
-    autoPlay = setTimeout(() => player.toggle(), 320);
+    // lépünk vagy kilépünk, ez az időzítő törlődik. Ha a felhasználó addig
+    // maga elindította, a play() nem nyúl hozzá.
+    autoPlay = setTimeout(() => player.play(), 320);
   }
 
   renderProgress();

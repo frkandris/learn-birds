@@ -50,6 +50,13 @@ export class Player {
       this.audio.pause();
       return;
     }
+    await this.play();
+  }
+
+  // Elejéről indít, és sosem állít meg: az automatikus indítás ezt hívja, hogy
+  // a közben már elindított lejátszást ne kapcsolja ki.
+  async play() {
+    if (this.playing) return;
     this.unlock();
     if (this.audio.ended || this.audio.currentTime > 0) this.audio.currentTime = 0;
     try {
