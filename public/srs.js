@@ -1,7 +1,7 @@
 // Ismétléses ütemezés (spaced repetition) és a tanulási állapot.
 //
-// Minden fajhoz két külön kártya tartozik: a kép- és a hangfelismerés
-// önálló készség, ezért külön ütemezéssel halad. Egy kártya szintje azt
+// Minden fajhoz módonként (csak kép, csak hang, a kettő együtt) külön kártya
+// tartozik: mindegyik önálló készség, ezért külön ütemezéssel halad. Egy kártya szintje azt
 // mondja meg, hány nap múlva kerül elő újra.
 
 const KEY = 'learn-birds/v1';

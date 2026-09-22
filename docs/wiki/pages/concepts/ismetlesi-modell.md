@@ -51,9 +51,7 @@ Ha mára minden faj pihen, a soron következő esedékességek jönnek elő, el�
 de ilyenkor **az ütemezés nem változik**: a kártya szintje és esedékessége marad, a
 válasz csak a napi statisztikába és a `seen` számlálóba kerül. Egy korán elővett
 kártya nem érdemel jutalmat (hetekkel odébb tolt ismétlést), és nem is büntetendő.
-A kör fejléce és az összegzés is jelzi, hogy szabadgyakorlás folyik. Ha mára minden faj pihen,
-a soron következő esedékességek jönnek elő, előrehozva — a szabadgyakorlás nem
-tiltott, de a szintet ilyenkor is lépteti.
+A kör fejléce és az összegzés is jelzi, hogy szabadgyakorlás folyik.
 
 ## Tárolás
 

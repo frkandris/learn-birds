@@ -14,7 +14,7 @@ export class Round {
 
   /**
    * @param {object} options
-   * @param {'both'|'sound'} options.mode gyakorlómód
+   * @param {'image'|'sound'|'both'} options.mode gyakorlómód
    * @param {Array} options.birds a körbe választott fajok
    * @param {Function} [options.pick] média-választó (tesztben determinisztikus)
    */
