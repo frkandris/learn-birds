@@ -171,18 +171,24 @@ button { font: inherit; color: inherit; }
 
 .bird-list { list-style: none; margin: 0; padding: 0; }
 
-.bird {
+.bird { border-top: 1px solid var(--line); }
+.bird:last-child { border-bottom: 1px solid var(--line); }
+
+.bird-row {
   display: grid;
   grid-template-columns: 66px 1fr auto;
   align-items: center;
   gap: 14px;
   padding: 12px 0;
-  border-top: 1px solid var(--line);
+  cursor: pointer;
+  list-style: none;
 }
 
-.bird:last-child { border-bottom: 1px solid var(--line); }
+.bird-row::-webkit-details-marker { display: none; }
+.bird-row:active { background: var(--shade-2); }
+details[open] > .bird-row { background: none; }
 
-.bird img {
+.bird-row img {
   width: 66px;
   height: 66px;
   object-fit: cover;
@@ -190,7 +196,53 @@ button { font: inherit; color: inherit; }
   background: var(--moss);
 }
 
+/* A kinyithatóságot a név utáni jel mutatja; mobilon nincs hover, ami elárulná. */
+.chevron {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 2px;
+  border-right: 1.5px solid var(--bone-faint);
+  border-bottom: 1.5px solid var(--bone-faint);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.18s ease;
+}
+
+details[open] .chevron { transform: translateY(1px) rotate(-135deg); }
+
+/* Faj-részletek: a kártyákon szereplő fotók és felvételek, forrással. */
+.bird-detail {
+  display: grid;
+  gap: 14px;
+  padding: 4px 0 18px;
+  color-scheme: dark;  /* a natív lejátszó is sötét legyen */
+  animation: rise 0.22s ease;
+}
+
+.detail-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.detail-photos figure { margin: 0; }
+
+.detail-photos img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--moss);
+}
+
+.detail-photos figcaption,
+.detail-credit {
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--bone-faint);
+}
+
+.detail-audio audio { width: 100%; height: 36px; }
+.detail-audio .detail-credit { margin-top: 3px; }
+
 .bird-name { font-family: var(--serif); font-size: 21px; font-weight: 700; line-height: 1.2; }
+.bird-name .chevron { vertical-align: middle; }
 .bird-latin { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--bone-faint); }
 
 .skills { display: grid; gap: 4px; justify-items: end; }
@@ -221,6 +273,12 @@ button { font: inherit; color: inherit; }
 .skill.both .pip.on { background: var(--bone); border-color: var(--bone); }
 
 .danger { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--line); }
+.offline-note {
+  font-size: 14px;
+  color: var(--bone-soft);
+  margin-bottom: 10px;
+}
+
 .credit-note { font-size: 14px; color: var(--bone-faint); margin-bottom: 22px; max-width: 46ch; line-height: 1.45; }
 .credit-note a { color: var(--bone-soft); }
 .danger h2 { font-size: 22px; margin-bottom: 6px; }
@@ -328,6 +386,12 @@ button { font: inherit; color: inherit; }
 }
 
 .stage { min-height: 0; display: flex; flex-direction: column; }
+.stage.enter { animation: card-in 0.26s cubic-bezier(0.2, 0.7, 0.3, 1); }
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
 
 .photo { margin: 0; flex: 1; min-height: 0; }
 .photo[hidden] { display: none; }
@@ -340,7 +404,12 @@ button { font: inherit; color: inherit; }
   object-fit: cover;
   border-radius: var(--radius);
   background: var(--shade-2);
+  /* Amíg a fotó tölt, a helye halk felület marad, nem villan feketén. */
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
+
+.photo img.ready { opacity: 1; }
 
 .sound {
   position: relative;

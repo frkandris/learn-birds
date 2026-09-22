@@ -44,6 +44,7 @@ async function boot() {
   renderToday();
   renderBirds();
   wire();
+  renderOfflineState();
 
   // Fejlesztés közben (localhost) nincs offline gyorsítótár, hogy a
   // módosított fájlok azonnal látszódjanak.
@@ -107,6 +108,10 @@ function renderBirds() {
     const li = document.createElement('li');
     li.className = 'bird';
 
+    const details = document.createElement('details');
+    const summary = document.createElement('summary');
+    summary.className = 'bird-row';
+
     const img = document.createElement('img');
     if (bird.images[0]) img.src = bird.images[0].file;
     img.alt = '';
@@ -116,6 +121,10 @@ function renderBirds() {
     const name = document.createElement('div');
     name.className = 'bird-name';
     name.textContent = capitalize(bird.name);
+    const chevron = document.createElement('span');
+    chevron.className = 'chevron';
+    chevron.setAttribute('aria-hidden', 'true');
+    name.append(' ', chevron);
     const latin = document.createElement('div');
     latin.className = 'bird-latin';
     latin.textContent = bird.taxon;
@@ -125,11 +134,56 @@ function renderBirds() {
     skills.className = 'skills';
     skills.append(...MODES.map((mode) => skillRow(bird, mode)));
 
-    li.append(img, text, skills);
+    summary.append(img, text, skills);
+    const panel = document.createElement('div');
+    panel.className = 'bird-detail';
+    // A tartalom csak első kinyitáskor épül fel: 27 fajnál a képek és a
+    // lejátszók előre legyártva fölösleges DOM-ot és kéréseket jelentenének.
+    details.addEventListener('toggle', () => {
+      if (details.open && !panel.childElementCount) fillDetail(panel, bird);
+    });
+
+    details.append(summary, panel);
+    li.append(details);
     list.append(li);
   }
 
-  $('birds-lead').textContent = `${birds.length} faj, módonként külön haladással. A pöttyök azt mutatják, milyen messzire tolódott a következő ismétlés.`;
+  $('birds-lead').textContent =
+    `${birds.length} faj, módonként külön haladással. Koppints egy fajra: ott a fotói, a felvételei és a szerzőik.`;
+}
+
+// Egy faj teljes anyaga: a kártyákon látható fotók és hangok, forrással.
+function fillDetail(panel, bird) {
+  if (bird.images.length) {
+    const photos = document.createElement('div');
+    photos.className = 'detail-photos';
+    for (const image of bird.images) {
+      const figure = document.createElement('figure');
+      const img = document.createElement('img');
+      img.src = image.file;
+      img.alt = `${capitalize(bird.name)} — fotó`;
+      img.loading = 'lazy';
+      const caption = document.createElement('figcaption');
+      caption.textContent = `${image.author} · ${image.license}`;
+      figure.append(img, caption);
+      photos.append(figure);
+    }
+    panel.append(photos);
+  }
+
+  for (const sound of bird.audio) {
+    const row = document.createElement('div');
+    row.className = 'detail-audio';
+    const player = document.createElement('audio');
+    player.controls = true;
+    player.preload = 'none';
+    player.src = sound.file;
+    const credit = document.createElement('p');
+    credit.className = 'detail-credit';
+    credit.textContent = `${sound.author} · ${sound.license}`;
+    row.append(player, credit);
+    panel.append(row);
+  }
 }
 
 function skillRow(bird, mode) {
@@ -162,6 +216,23 @@ function whenLabel(status, missing) {
   if (status.state === 'due') return 'ma';
   const days = daysUntil(status.due);
   return days === 1 ? 'holnap' : `${days} nap`;
+}
+
+// Ha a média már a készüléken van, azt érdemes tudni: onnantól térerő nélkül
+// is megy a gyakorlás. Fejlesztés közben (nincs service worker) nem látszik.
+async function renderOfflineState() {
+  const note = $('offline-note');
+  try {
+    if (!navigator.serviceWorker?.controller || !('caches' in window)) return;
+    const names = await caches.keys();
+    let files = 0;
+    for (const name of names) files += (await (await caches.open(name)).keys()).length;
+    if (files < 10) return;
+    note.textContent = `Offline is működik: ${files} fájl a készüléken.`;
+    note.hidden = false;
+  } catch {
+    // A gyorsítótár lekérdezése nem létfontosságú, a jelzés ilyenkor elmarad.
+  }
 }
 
 /* ---------- Gyakorlás ---------- */
@@ -202,8 +273,15 @@ function showCard() {
   $('sound-hint').textContent = 'Koppints a hanghoz';
 
   if (item.image) {
-    $('photo-img').src = item.image.file;
-    $('photo-img').alt = withPhoto ? 'A felismerendő madár fotója' : '';
+    const photo = $('photo-img');
+    photo.classList.remove('ready');
+    // Hibánál is megjelenítjük: jobb a böngésző törött-kép jelzése, mint egy
+    // üresnek tűnő kártya, amin a felhasználó hiába vár.
+    photo.onload = () => photo.classList.add('ready');
+    photo.onerror = () => photo.classList.add('ready');
+    photo.src = item.image.file;
+    photo.alt = withPhoto ? 'A felismerendő madár fotója' : '';
+    if (photo.complete) photo.classList.add('ready'); // gyorsítótárból azonnal kész
   }
 
   player.clear();
@@ -216,6 +294,16 @@ function showCard() {
   }
 
   renderProgress();
+  replay($('stage'));
+}
+
+// A kártyaváltás látsszon is: az animáció csak kíséri az állapotot, nem
+// hordozza — az osztály eltávolítása és a reflow újraindítja, gyors
+// értékelésnél is.
+function replay(element) {
+  element.classList.remove('enter');
+  void element.offsetWidth;
+  element.classList.add('enter');
 }
 
 function renderProgress() {

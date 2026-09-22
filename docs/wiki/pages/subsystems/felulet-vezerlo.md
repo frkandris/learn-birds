@@ -18,7 +18,7 @@ resource: public/app.js
 |---|---|
 | `boot()` | betölti a `data/birds.json`-t, rendereli a nézeteket, regisztrálja a service workert |
 | Ma | `renderToday()`, `renderDose()` — a három mód indítógombja, napi adag, sorozat |
-| Fajok | `renderBirds()`, `skillRow()` — fajonként három pöttysor, esedékességgel; alul a forrásmegjelölés és a haladás törlése |
+| Fajok | `renderBirds()`, `skillRow()` — fajonként három pöttysor, esedékességgel. A sor `<details>`: koppintásra megnyílnak a faj fotói és felvételei (`fillDetail()`), forrással. Alul az offline jelzés, a forrásmegjelölés és a haladás törlése |
 | Gyakorlás | `startSession()`, `showCard()`, `reveal()`, `grade()`, `finishSession()` |
 | `wire()` | gombok, fülek, billentyűk (`szóköz` felfed, `1`/`2` értékel, `Esc` kilép) |
 
@@ -41,6 +41,9 @@ nincs reaktív állapotkezelés, a renderelés függvényhívásokból áll
   hiba esetén a Ma nézet ezt írja ki, nem néma hibával áll meg.
 - **A színek és a méretek mérve vannak, nem szemre hangolva**: a szövegszintek és a
   tapintható célpontok szabálya a [[2026-09-22-akadalymentessegi-alapszint]] oldalon.
+- **A faj-részletek lustán épülnek**: a panel tartalmát a `toggle` esemény hozza
+  létre, egyszer. 27 fajra előre legyártva fölösleges DOM és kérés lenne; a natív
+  `<audio controls preload="none">` pedig csak lejátszáskor tölt.
 - **A Ma nézet szándékosan szűkszavú**: cím, a három indítógomb, a napi adag, és a
   sorozat is csak akkor, ha már van. Dátum, összegző mondat és külön Források fül
   nem volt hasznos, ezért 2026-09-22-én kikerült.
