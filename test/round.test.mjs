@@ -127,3 +127,13 @@ test('az összegzés a kör méretét és az időt is jelenti', () => {
   assert.equal(summary.missed, 0);
   assert.ok(summary.minutes >= 1, 'a percek felfelé kerekítve, sosem nulla');
 });
+
+test('a kör előre megmondja, mely fájlok kerülnek elő benne', () => {
+  const both = newRound(['a', 'b']);
+  const image = newRound(['a', 'b'], 'image');
+  const sound = newRound(['a'], 'sound');
+
+  assert.deepEqual(both.files(), ['a.jpg', 'a.m4a', 'b.jpg', 'b.m4a']);
+  assert.deepEqual(image.files(), ['a.jpg', 'b.jpg'], 'csak kép módban a hang nem kell');
+  assert.deepEqual(sound.files(), ['a.jpg', 'a.m4a'], 'hang módban a fotó a felfedéskor jön elő');
+});

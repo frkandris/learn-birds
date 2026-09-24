@@ -42,6 +42,15 @@ export class Round {
     return this.order.length;
   }
 
+  /**
+   * A kör során előkerülő médiafájlok, előtöltéshez. A fotó minden módban kell
+   * (hang módban a felfedéskor jön elő), a hang csak ott, ahol szól.
+   */
+  files() {
+    return this.#queue.flatMap(({ image, audio }) =>
+      [image?.file, this.mode === 'image' ? null : audio?.file].filter(Boolean));
+  }
+
   /** A haladásjelző állapota fajonként: 'done' | 'miss' | 'now' | ''. */
   progress() {
     const currentId = this.current?.bird.id;

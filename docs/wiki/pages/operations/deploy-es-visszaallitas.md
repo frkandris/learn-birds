@@ -39,7 +39,9 @@ A telepítés után a böngésző konzoljából:
 
 ```js
 (await navigator.serviceWorker.getRegistrations()).length      // 1
-(await caches.open((await caches.keys())[0])).keys().then(k => k.length)   // ~53
+await caches.keys()                                  // ['madarak-v6', 'madarak-media']
+(await (await caches.open('madarak-v6')).keys()).length       // 23
+(await (await caches.open('madarak-media')).keys()).length    // ahány fájl már előkerült
 ```
 
 ## Visszaállítás

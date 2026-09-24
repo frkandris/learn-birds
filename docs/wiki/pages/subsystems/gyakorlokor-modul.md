@@ -22,6 +22,7 @@ const round = new Round({ mode, birds, pick });   // pick: média-választó, al
 round.current      // { bird, image, audio, failed } | null
 round.finished     // igaz, ha minden kártya sikerült
 round.progress()   // [{ id, state: 'done'|'miss'|'now'|'' }] a haladásjelzőhöz
+round.files()      // a körben előkerülő médiafájlok, előtöltéshez (a hang csak ahol szól)
 round.grade(ok)    // { birdId, clean } ha lezárult, null ha visszament a végére
 round.summary()    // { total, clean, missed, minutes }
 ```

@@ -30,21 +30,22 @@ részleges begyűjtése is új bélyeget kapott, így **minden kliens mind a 108
 - A `fetch-birds.mjs` a fájlt a tartalma alapján nevezi el (`finalize()`).
 - A service worker két gyorsítótárat tart: a verziózott `madarak-v6` az app
   kódjának, ikonjainak és betűinek, a verziózatlan `madarak-media` a médiának.
-  Ez utóbbi a `birds.json`-t követi — telepítéskor és minden sikeresen
-  letöltött `birds.json` után (`adoptList()`): a hiányzót letölti, a
-  feleslegeset törli.
+  Ez utóbbi a `birds.json`-t követi: minden sikeresen letöltött `birds.json`
+  után az `adoptList()` törli a benne már nem szereplő fájlokat.
 - Az nginx a hash-es médiát `max-age=31536000, immutable` fejléccel adja.
 - A `MEDIA_STAMP` és a `sw.js`-t átíró lépés megszűnt.
 
 ## Következmények
 
 - A régi tartalom visszatérése szerkezetileg kizárt: új tartalom = új név.
-- Egy faj cseréje csak az ő 2–4 fájlját tölti le; a worker cseréje sem kell
-  hozzá, mert a friss `birds.json` elindítja a szinkront.
+- Egy faj cseréje csak az ő fájljait érinti; a worker cseréje sem kell hozzá.
 - A `test/media.test.mjs` őrzi a szerződést: minden hivatkozott fájl neve a
   tartalma hash-ét hordozza, és nincs gazdátlan fájl a `public/media` alatt.
-- Egyszeri ár: az átálláskor minden telepített kliens egyszer újratölti a
-  médiát (a nevek megváltoztak).
+- A régi, bélyeges gyorsítótár az átálláskor törlődik; mivel a média azóta
+  használatkor kerül a készülékre
+  ([[2026-09-24-media-hasznalatkor-kerul-a-keszulekre]]), ez nem jelent
+  egyszerre 19 MB-os újratöltést, csak azt, hogy a fájlok a használattal
+  újra bekerülnek.
 
 ## Elvetett alternatívák
 

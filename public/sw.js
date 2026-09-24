@@ -1,11 +1,12 @@
-// Offline gyorsítótár: telepítéskor bekerül az app és minden média,
-// hogy a gyakorlás térerő nélkül is menjen.
+// Offline gyorsítótár: telepítéskor bekerül az app; a média használatkor
+// kerül a készülékre, így ami egyszer előkerült, térerő nélkül is megy — a
+// teljes (~15 MB-os) készletet viszont senki nem tölti le kérés nélkül.
 
 // Két gyorsítótár van. Az app kódja, az ikonok és a betűk a verziózott
 // `CACHE`-be kerülnek; a verziót kézzel emeljük, ha a worker logikája változik.
 // A média a `MEDIA`-ba: a fájlnév a tartalom hash-ét hordozza, tehát egy név
 // alatt sosem változik — ezt a gyorsítótárat nem kell verziózni, csak a
-// birds.json szerint kiegészíteni és ritkítani.
+// birds.json szerint ritkítani.
 const CACHE_PREFIX = 'madarak-';
 const CACHE = `${CACHE_PREFIX}v6`;
 const MEDIA = `${CACHE_PREFIX}media`;
@@ -39,60 +40,34 @@ async function fontFiles(cache) {
   }
 }
 
-// A médiagyorsítótár a birds.json-t követi. Egy új lista „tranzakcióként"
-// kerül át: előbb minden hiányzó fájl lejön, csak utána tárolódik a lista, és
-// csak utána törlődik a már nem kellő média. Ha közben elmegy a kapcsolat, a
-// régi lista és a teljes régi média marad — offline mindig egymáshoz illenek.
-async function listedMedia(birdsResponse) {
-  try {
-    const data = await birdsResponse.json();
-    const files = data.birds.flatMap((bird) => [...bird.images, ...bird.audio].map((item) => item.file));
-    return files.map((file) => new URL(file, self.registration.scope).href);
-  } catch {
-    return null; // sérült lista alapján nem nyúlunk semmihez
-  }
-}
-
-async function fetchMissing(urls) {
-  const cache = await caches.open(MEDIA);
-  const have = new Set((await cache.keys()).map((request) => request.url));
-  const results = await Promise.all(
-    urls.filter((url) => !have.has(url)).map((url) => cache.add(url).then(() => true, () => false)),
-  );
-  return results.every(Boolean);
-}
-
-async function pruneMedia(urls) {
-  const cache = await caches.open(MEDIA);
-  const wanted = new Set(urls);
-  const stale = (await cache.keys()).filter((request) => !wanted.has(request.url));
-  await Promise.all(stale.map((request) => cache.delete(request)));
-}
-
-// Friss birds.json a hálózatról: a worker cseréje nélkül is a készülékre hozza
-// az új begyűjtést, és csak a változott fájlokat tölti le.
+// A médiagyorsítótár a birds.json-t követi: ami a friss listában már nincs
+// benne (lecserélt vagy kivett faj), az törlődik. Csak a lista sikeres
+// tárolása után — különben offline a régi lista a törölt fájljaira mutatna.
 async function adoptList(request, response) {
-  const urls = await listedMedia(response.clone());
-  if (!urls || !(await fetchMissing(urls))) return;
+  let wanted;
+  try {
+    const data = await response.clone().json();
+    wanted = new Set(
+      data.birds.flatMap((bird) => [...bird.images, ...bird.audio])
+        .map((item) => new URL(item.file, self.registration.scope).href),
+    );
+  } catch {
+    return; // sérült lista alapján nem törlünk semmit
+  }
   await (await caches.open(CACHE)).put(request, response);
-  await pruneMedia(urls);
+  const media = await caches.open(MEDIA);
+  const stale = (await media.keys()).filter((stored) => !wanted.has(stored.url));
+  await Promise.all(stale.map((stored) => media.delete(stored)));
 }
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    // Az app futásához kellő fájlok nélkül nincs értelme a telepítésnek, a
-    // többi (ikon, betű, média) hiánya viszont nem buktathatja meg.
+    // Az app futásához kellő fájlok nélkül nincs értelme a telepítésnek, az
+    // ikonok és a betűk hiánya viszont nem buktathatja meg.
     await cache.addAll(CORE.map(fresh));
     const extras = [...ICONS, ...(await fontFiles(cache))];
     await Promise.all(extras.map((url) => cache.add(fresh(url)).catch(() => {})));
-    // Első telepítéskor nincs régi lista, amit meg kellene őrizni: ami itt
-    // kimarad, a következő online indításkor pótlódik.
-    const urls = await listedMedia(await cache.match('data/birds.json'));
-    if (urls) {
-      await fetchMissing(urls);
-      await pruneMedia(urls);
-    }
     self.skipWaiting();
   })());
 });
@@ -109,9 +84,9 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-// A média, az ikonok és a betűk: cache-first. Az app kódja viszont frissülhet,
-// ezért ott a hálózat az első, a gyorsítótár a tartalék — így offline is minden
-// megvan.
+// A média, az ikonok és a betűk: cache-first, és az első letöltéskor
+// eltesszük őket. Az app kódja viszont frissülhet, ezért ott a hálózat az
+// első, a gyorsítótár a tartalék.
 const STATIC = /\.(jpg|png|m4a|woff2|svg)$/i;
 const IS_MEDIA = /\/media\//;
 

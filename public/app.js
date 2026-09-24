@@ -242,8 +242,8 @@ function whenLabel(status, missing) {
   return days === 1 ? 'holnap' : `${days} nap`;
 }
 
-// Ha a média már a készüléken van, azt érdemes tudni: onnantól térerő nélkül
-// is megy a gyakorlás. A fájlok számából következtetni félrevezető lenne (az
+// Mennyi média van már a készüléken: ami egyszer előkerült, az térerő nélkül
+// is megy. A fájlok számából következtetni félrevezető lenne (az
 // app és a betűk maguktól is kitesznek tucatnyit), ezért tételesen nézzük meg,
 // hány fotó és felvétel van meg a gyorsítótárban.
 async function renderOfflineState() {
@@ -265,7 +265,7 @@ async function renderOfflineState() {
 
     note.textContent = present === media.length
       ? `Offline is működik: mind a ${media.length} fotó és felvétel a készüléken van.`
-      : `Offline részben: ${present} a ${media.length} fotóból és felvételből van meg.`;
+      : `A ${media.length} fotóból és felvételből ${present} van a készüléken — ami egyszer előkerült, térerő nélkül is megy.`;
     note.hidden = false;
   } catch {
     // A gyorsítótár lekérdezése nem létfontosságú, a jelzés ilyenkor elmarad.
@@ -280,6 +280,9 @@ function startSession(mode) {
 
   player.unlock(); // még a gombnyomás gesztusán belül
   round = new Round({ mode, birds: picked });
+  // A kör fájljai előre: a kártyaváltás nem vár a hálózatra, és a worker
+  // elteszi őket — ami egyszer bekerült egy körbe, az offline is megvan.
+  for (const file of round.files()) fetch(file).catch(() => {});
   freePractice = counts(state, birds, mode).ready === 0;
 
   stopDetailAudio();
@@ -466,6 +469,7 @@ function closeSession() {
   setBackgroundInert(false);
   renderToday();
   renderBirds();
+  renderOfflineState(); // a kör fájljai azóta a készülékre kerültek
 }
 
 /* ---------- események ---------- */

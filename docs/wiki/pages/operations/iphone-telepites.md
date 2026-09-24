@@ -24,8 +24,10 @@ tartalom nem kerül a kivágás alá.
 
 - **HTTPS kell.** A `npm start` LAN-címén (`http://192.168.x.x:5173`) az ikon
   kirakható, de service worker nem regisztrálódik, tehát nincs offline mód.
-- **Az offline mód a telepítés után él**: az első megnyitáskor a worker letölti a
-  médiát (~5,5 MB), utána repülőgép-módban is megy.
+- **Az offline mód használattal épül**: telepítéskor csak az app kerül a
+  készülékre; a fotók és hangok akkor, amikor egy körbe bekerülnek. Ami egyszer
+  előkerült, repülőgép-módban is megy — egy vadonatúj faj első köréhez viszont
+  térerő kell ([[2026-09-24-media-hasznalatkor-kerul-a-keszulekre]]).
 - **Frissítés**: az app kódja network-first, tehát online indításkor magától
   frissül; a régi média a gyorsítótárból marad ([[offline-gyorsitotar]]).
 - A hang az első koppintásra indul — iOS csak felhasználói gesztusból engedi
