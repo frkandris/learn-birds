@@ -37,7 +37,9 @@ resource: scripts/fetch-birds.mjs
    `Valued images`) előre kerülnek — ezeken a fotókon a madár jól látszik, nem csak
    rajta van a képen.
 8. Letöltés és átalakítás: kép 900 px szélességben a Commonstól; hang `ffmpeg`-gel
-   22 s, mono, AAC 96k, `loudnorm`, fade, `+movflags faststart` ([[faststart-aac]]).
+   22 s, mono, AAC 64k (`AUDIO_BITRATE`), `loudnorm`, fade, `+movflags faststart`
+   ([[faststart-aac]]). 2026-09-24-ig 96k volt; a madárhang java 9 kHz alatt
+   van, ott a különbség nem hallható, a hangkészlet viszont 12,0 → 8,1 MB.
 
 9. Elnevezés: a fájl neve a tartalma SHA-256 hash-ének első nyolc jegyét
    hordozza (`finalize()`, pl. `tengelic-1.3fa9c2d1.jpg`) — így egy név alatt

@@ -25,7 +25,7 @@ teljes letöltés után tud lejátszani — vagy sehogy:
 Javítás a kódolásban (`scripts/fetch-birds.mjs`):
 
 ```sh
-ffmpeg -i in.mp3 -t 22 -ac 1 -c:a aac -b:a 96k -movflags +faststart out.m4a
+ffmpeg -i in.mp3 -t 22 -ac 1 -c:a aac -b:a 64k -movflags +faststart out.m4a
 ```
 
 Meglévő fájlokon újrakódolás nélkül is megoldható:

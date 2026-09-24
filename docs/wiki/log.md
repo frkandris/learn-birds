@@ -3,6 +3,7 @@
 Dátum szerint csoportosított napló, legújabb elöl. Formátum: [SCHEMA.md](SCHEMA.md).
 
 ## 2026-09-24
+- **Update**: A hangok 96 helyett 64 kbit/s-os AAC-ként kódolva (a felhasználó döntése): 12,0 → 8,1 MB. Nem újragyűjtés — ugyanazok a Commons-eredetik, ugyanazzal a választással, csak újrakódolva (a `birds.json` `source` mezőjéből); mind az 54 fájl `faststart` (a `moov` a `mdat` előtt). A képekhez nem nyúltunk; [[media-begyujto]].
 - **Update**: Harmadik codex kör: ha a médiaszinkron közben megszakadt a kapcsolat, a friss lista már tárolva volt, a fájljai nem — offline hiányzó médiára mutatott volna. Az új lista most tranzakcióként kerül át (`adoptList()`: előbb minden új fájl, aztán a lista, végül a törlés); [[offline-gyorsitotar]]. A [[kulso-review]] táblája a 3. kör találataival bővült.
 - **Update**: Második codex kör (`codex review --base 4fee2fe`) egy találata: a friss `birds.json` utáni médiaszinkron a lista tárolásától függetlenül futott, így egy sikertelen mentés után offline a régi lista maradt volna a már törölt fájljaira hivatkozva; a szinkron most a sikeres mentés után indul. A végigvezetett példa a hash-es neveket mutatja; [[offline-gyorsitotar]].
 - **Update**: A Ma nézet napváltáskor frissül, amikor az app újra előtérbe kerül — a memóriában tartott telepített app reggel eddig a tegnapi „Mára megvan"-t mutatta. Böngészőben mérve eltolt órával: „Mára megvan / ↻" → „Mai adag / 3"; [[felulet-vezerlo]].

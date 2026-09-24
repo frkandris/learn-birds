@@ -24,6 +24,9 @@ const MAX_IMAGES = 2;
 const MAX_AUDIO = 2;
 const IMAGE_WIDTH = 900;
 const AUDIO_SECONDS = 22;
+// Mono AAC 64 kbit/s: a madárhang java 9 kHz alatt van, ott nem hallani
+// különbséget a 96k-hoz képest, a készlet viszont ~4 MB-tal kisebb.
+const AUDIO_BITRATE = '64k';
 
 // A faj kategóriájában sok olyan kép van, ami tanuláshoz félrevezető
 // (tojás, fészek, fióka, elterjedési térkép, preparátum, rajz). A fájlnév
@@ -185,7 +188,7 @@ export function authorOf(meta) {
   return provider || 'ismeretlen szerző';
 }
 
-async function fileInfo(titles) {
+export async function fileInfo(titles) {
   if (!titles.length) return new Map();
   const data = await api('commons.wikimedia.org', {
     action: 'query',
@@ -219,7 +222,7 @@ async function fileInfo(titles) {
   return out;
 }
 
-async function download(url, dest) {
+export async function download(url, dest) {
   const res = await fetch(url, { headers: { 'User-Agent': UA } });
   if (!res.ok) throw new Error(`letöltés sikertelen (${res.status}): ${url}`);
   await writeFile(dest, Buffer.from(await res.arrayBuffer()));
@@ -227,13 +230,13 @@ async function download(url, dest) {
 
 // iOS Safari nem játszik le Ogg Vorbist, ezért mindent AAC-re kódolunk,
 // és a hosszú felvételeket egy kártyányi hosszra vágjuk.
-async function transcodeAudio(input, output) {
+export async function transcodeAudio(input, output) {
   await run('ffmpeg', [
     '-y', '-loglevel', 'error',
     '-i', input,
     '-t', String(AUDIO_SECONDS),
     '-af', `afade=t=out:st=${AUDIO_SECONDS - 1.5}:d=1.5,loudnorm=I=-16:TP=-1.5:LRA=11`,
-    '-ac', '1', '-ar', '44100', '-c:a', 'aac', '-b:a', '96k',
+    '-ac', '1', '-ar', '44100', '-c:a', 'aac', '-b:a', AUDIO_BITRATE,
     // A fejléc a fájl elejére kerül, különben a böngésző csak a teljes
     // letöltés után tudná elkezdeni a lejátszást (iOS-en sehogy).
     '-movflags', '+faststart',
@@ -244,7 +247,7 @@ async function transcodeAudio(input, output) {
 // A végleges név a tartalom hash-ét hordozza (`tengelic-1.3fa9c2d1.jpg`): így a
 // fájl sosem változik egy adott néven, a böngésző és a service worker örökre
 // tárolhatja, és egy faj cseréje csak annak a fajnak a fájljait érinti.
-async function finalize(dir, id, index, ext) {
+export async function finalize(dir, id, index, ext) {
   const draft = join(dir, `${id}-${index}.${ext}`);
   const hash = createHash('sha256').update(await readFile(draft)).digest('hex').slice(0, 8);
   const name = `${id}-${index}.${hash}.${ext}`;

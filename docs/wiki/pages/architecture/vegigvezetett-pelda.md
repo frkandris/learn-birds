@@ -33,7 +33,7 @@ generated: { by: claude-opus-5/claude-code, at: 2026-09-21T09:00:00Z }
 5. **Metaadat**: `imageinfo` + `extmetadata` → `Artist`, `LicenseShortName` — a
    szerző a felfedett kártyára kerül, a licenc a `birds.json`-ba.
 6. **Átalakítás**: a kép a Commonstól 900 px szélességben kérve; a hang
-   `ffmpeg`-gel 22 másodperces, mono, 96 kbit/s AAC, `loudnorm`-mal és
+   `ffmpeg`-gel 22 másodperces, mono, 64 kbit/s AAC, `loudnorm`-mal és
    `+movflags faststart`-tal ([[faststart-aac]]).
 
 Eredmény: `public/media/kek-cinege-{1,2}.<hash>.jpg`, `kek-cinege-{1,2}.<hash>.m4a`
