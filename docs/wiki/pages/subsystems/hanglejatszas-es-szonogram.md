@@ -35,6 +35,10 @@ player.stop(); player.clear();
 - Az írótoll a `currentTime`-ból számolt x-en halad. **Csak előre**: a lejátszási
   idő képkockánként vissza is léphet, ezért csak 20 pixelnél nagyobb visszalépés
   számít visszatekerésnek és törli a vásznat.
+- **Rejtett vásznon nem rajzol**: kép és hang módban és felfedés után a vászon
+  `display: none`, ilyenkor a hurok az első képkockán leáll (`offsetWidth === 0`).
+  Korábban a teljes felvétel alatt képkockánként 300 `fillRect` futott a
+  semmibe — kép és hang módban ez minden kártyán így volt.
 
 ## Amire figyelni kell
 

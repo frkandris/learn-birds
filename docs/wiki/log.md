@@ -2,6 +2,9 @@
 
 Dátum szerint csoportosított napló, legújabb elöl. Formátum: [SCHEMA.md](SCHEMA.md).
 
+## 2026-09-24
+- **Update**: A szonogram rejtett vásznon nem rajzol — kép és hang módban és felfedés után a hurok az első képkockán leáll; eddig a teljes felvétel alatt képkockánként 300 `fillRect` futott a semmibe. Mérve: rejtett vásznon 1 képkocka, csak hang módban folyamatos; [[hanglejatszas-es-szonogram]].
+
 ## 2026-09-22
 - **Lint**: [[offline-gyorsitotar]] — a `v5` worker éles telepítése mérve: 133 bejegyzés (10 + 3 ikon + 12 betű + 108 média), csak a `v5` gyorsítótár maradt, a Range-kérés 206-ot és 100 bájtot ad; a korábban rögzített 131 hiányos telepítés volt.
 - **Update**: Billentyűzet és képernyőolvasó: az aktív fül `aria-current="page"`-et kap, az összegzés Escape-re bezárul, a módosítóval lenyomott billentyűt (pl. Alt+←) a gyakorlás nem értékelésnek veszi; [[felulet-vezerlo]].

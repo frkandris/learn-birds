@@ -121,6 +121,13 @@ export class Player {
     let lastX = -1;
 
     const step = () => {
+      // Kép és hang módban, illetve felfedés után a vászon rejtve van: ott a
+      // rajzolás csak az akkumulátort fogyasztaná. Kártyán belül rejtettből
+      // nem lesz újra látható, a következő lejátszás pedig újraindítja.
+      if (!this.canvas.offsetWidth) {
+        this.raf = null;
+        return;
+      }
       this.analyser.getByteFrequencyData(bins);
 
       // A rajz balról jobbra épül, a felvétel haladásával. A lejátszási idő
