@@ -151,8 +151,11 @@ self.addEventListener('fetch', (event) => {
       const cache = await caches.open(IS_MEDIA.test(url.pathname) ? MEDIA : CACHE);
       // A lejátszó bájttartományt kér, a 206-os választ viszont a Cache API
       // nem tárolja (TypeError). Ilyenkor a teljes fájlt külön töltjük le.
+      // Az írás a válasz után is folyik: a worker ne álljon le közben (mobil
+      // Safari leállítja, amint a válasz elment), különben a média offline
+      // hiányozna, pedig egyszer már lejött.
       if (response.status === 200) {
-        cache.put(request, response.clone()).catch(() => {});
+        keepAlive(event, cache.put(request, response.clone()).catch(() => {}));
       } else if (response.status === 206) {
         keepAlive(event, cache.add(url.href).catch(() => {}));
       }
@@ -165,7 +168,7 @@ self.addEventListener('fetch', (event) => {
       if (response.ok && url.pathname.endsWith('/data/birds.json')) {
         keepAlive(event, adoptList(request, response.clone()).catch(() => {}));
       } else if (response.ok) {
-        cache.put(request, response.clone());
+        keepAlive(event, cache.put(request, response.clone()).catch(() => {}));
       }
       return response;
     } catch {

@@ -3,6 +3,7 @@
 Dátum szerint csoportosított napló, legújabb elöl. Formátum: [SCHEMA.md](SCHEMA.md).
 
 ## 2026-09-24
+- **Update**: A worker minden gyorsítótár-írása `waitUntil` alatt fut — a használatkori médiatárolásnál a válasz után folyó `cache.put`-ot mobil Safari megszakíthatta volna (codex review a használatkori tárolásra); [[offline-gyorsitotar]].
 - **Creation**: [[2026-09-24-media-hasznalatkor-kerul-a-keszulekre]] — a felhasználó döntése: a worker telepítéskor nem tölti le a teljes médiakészletet (eddig ~19 MB minden első megnyitáskor). A gyakorlás a kör fájljait tölti elő (`Round.files()`), minden médiakérés első letöltéskor bekerül; a Fajok nézet alja mutatja, mennyi van a készüléken. Mérve a konténeren: telepítés után 0 média, egy kör után a kör 6 fájlja. [[offline-gyorsitotar]] újraírva, [[iphone-telepites]] és [[deploy-es-visszaallitas]] igazítva.
 - **Update**: A hangok 96 helyett 64 kbit/s-os AAC-ként kódolva (a felhasználó döntése): 12,0 → 8,1 MB. Nem újragyűjtés — ugyanazok a Commons-eredetik, ugyanazzal a választással, csak újrakódolva (a `birds.json` `source` mezőjéből); mind az 54 fájl `faststart` (a `moov` a `mdat` előtt). A képekhez nem nyúltunk; [[media-begyujto]].
 - **Update**: Harmadik codex kör: ha a médiaszinkron közben megszakadt a kapcsolat, a friss lista már tárolva volt, a fájljai nem — offline hiányzó médiára mutatott volna. Az új lista most tranzakcióként kerül át (`adoptList()`: előbb minden új fájl, aztán a lista, végül a törlés); [[offline-gyorsitotar]]. A [[kulso-review]] táblája a 3. kör találataival bővült.

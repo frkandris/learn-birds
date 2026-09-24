@@ -45,6 +45,9 @@ telepítés a régi változatot kaphatná vissza
   a teljes készleté.
 - **Bármely más médiakérés** (a Fajok nézet fotói és lejátszói) cache-first; a
   hiányzó fájl a hálózatról jön, és bekerül a `MEDIA` gyorsítótárba.
+- **Minden gyorsítótár-írás `waitUntil` alatt fut** (`keepAlive()`): az írás a
+  válasz elküldése után is tart, és mobil Safari a workert ilyenkor leállíthatja
+  — a fájl lejött volna, offline mégis hiányozna (codex review, 2026-09-24).
 - **Hang, Range-kéréssel**: a lejátszó 206-os részválaszt kap, amit a Cache API
   nem tárol (`cache.put` → `TypeError`) — ilyenkor a worker a teljes fájlt külön
   letölti. Az előtöltés ezt megelőzi, mert Range nélkül kér.
