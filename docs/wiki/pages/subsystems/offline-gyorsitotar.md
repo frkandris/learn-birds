@@ -12,8 +12,9 @@ resource: public/sw.js
 
 *A gyakorlás térerő nélkül is megy: telepítéskor az app, a betűk és a teljes
 médiakészlet a gyorsítótárba kerül (27 fajnál 108 fotó és felvétel, az apppal és
-a betűkkel együtt 133 bejegyzés: 10 alapfájl, 3 ikon, 12 betűfájl, 108 média —
-2026-09-22-i mérés az éles `v5` telepítésen; a korábbi 131 hiányos telepítés volt).*
+a betűkkel együtt 131 bejegyzés: 10 alapfájl, 3 ikon, 10 betűfájl, 108 média —
+a 2026-09-22-i éles `v5` mérés 133-at adott, azóta kikerült a nem használt
+Alegreya Sans 500 két fájlja).*
 
 ## Stratégia
 

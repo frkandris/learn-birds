@@ -3,6 +3,7 @@
 Dátum szerint csoportosított napló, legújabb elöl. Formátum: [SCHEMA.md](SCHEMA.md).
 
 ## 2026-09-24
+- **Update**: Kikerült az Alegreya Sans 500 (két woff2, sehol nem használt vastagság, de a worker minden telepítéskor letöltötte) és három halott CSS-szabály; [[offline-gyorsitotar]].
 - **Update**: A szonogram színei előre kiszámolt 256 elemű palettából jönnek; eddig a hurok pontonként új tömböket és `rgba()` szöveget gyártott (a codex review 5. pontja); [[hanglejatszas-es-szonogram]].
 - **Update**: A szonogram rejtett vásznon nem rajzol — kép és hang módban és felfedés után a hurok az első képkockán leáll; eddig a teljes felvétel alatt képkockánként 300 `fillRect` futott a semmibe. Mérve: rejtett vásznon 1 képkocka, csak hang módban folyamatos; [[hanglejatszas-es-szonogram]].
 

@@ -59,8 +59,6 @@ button { font: inherit; color: inherit; }
   text-wrap: balance;
 }
 
-.today-title em { font-style: normal; color: var(--tit); }
-
 .today-lead { color: var(--finch); max-width: 34ch; }  /* csak hibaüzenet */
 .today-lead[hidden] { display: none; }
 
@@ -86,7 +84,6 @@ button { font: inherit; color: inherit; }
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.start-eye { border-left-color: var(--tit); }
 .start-ear { border-left-color: var(--sky); }
 
 /* A kettős mód szegélye felül a képet, alul a hangot idézi. */
@@ -119,7 +116,6 @@ button { font: inherit; color: inherit; }
   color: var(--tit);
 }
 
-.start-eye .start-count { color: var(--tit); }
 .start-ear .start-count { color: var(--sky); }
 .start-pair .start-count { color: var(--bone); }
 
@@ -163,7 +159,7 @@ button { font: inherit; color: inherit; }
   line-height: 1.45;
 }
 
-/* ---------- Fajok, források ---------- */
+/* ---------- Fajok ---------- */
 
 .page-head { padding: 12px 0 22px; }
 .page-head h1 { font-size: 40px; margin-bottom: 8px; }
