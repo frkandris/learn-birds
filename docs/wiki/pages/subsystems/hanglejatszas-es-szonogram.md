@@ -29,7 +29,9 @@ player.stop(); player.clear();
 
 - `AnalyserNode`, `fftSize: 2048`, `smoothingTimeConstant: 0.55`.
 - Képsoronként egy frekvenciasáv, logaritmikusan 550 Hz → 9 kHz; a sáv-index
-  előre kiszámolt (`binForY`), hogy a képkockánkénti hurok olcsó maradjon.
+  előre kiszámolt (`binForY`), hogy a képkockánkénti hurok olcsó maradjon — a
+  színskála is (`PALETTE`, 256 kész `rgba()` szöveg), így a hurokban nem
+  keletkezik se tömb, se szöveg.
 - A küszöb frekvenciafüggő: lefelé haladva egyre többet vág le az alapzajból
   ([[frekvenciafuggo-szonogram-kuszob]]).
 - Az írótoll a `currentTime`-ból számolt x-en halad. **Csak előre**: a lejátszási

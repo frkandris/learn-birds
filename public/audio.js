@@ -148,7 +148,7 @@ export class Player {
         const cut = cutForY[y];
         const v = Math.pow(Math.max(0, (bins[binForY[y]] / 255 - cut) / (1 - cut)), 1.2);
         if (v < 0.04) continue;
-        ctx.fillStyle = shade(Math.min(1, v));
+        ctx.fillStyle = PALETTE[Math.round(Math.min(1, v) * 255)];
         ctx.fillRect(x, y, 2, 1);
       }
 
@@ -168,6 +168,10 @@ export class Player {
 }
 
 // Halk hang: halvány kék, erős: cinegesárga, csúcs: csontfehér.
+// Előre kiszámolva: a hurok képkockánként több száz pontot színez, ott ne
+// készüljön se tömb, se szöveg.
+const PALETTE = Array.from({ length: 256 }, (_, i) => shade(i / 255));
+
 function shade(v) {
   const stops = [
     [0, [70, 112, 172]],
