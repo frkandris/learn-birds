@@ -166,10 +166,14 @@ self.addEventListener('fetch', (event) => {
     const cache = await caches.open(CACHE);
     try {
       const response = await fetch(request);
-      if (response.ok) {
-        cache.put(request, response.clone());
+      if (response.ok && url.pathname.endsWith('/data/birds.json')) {
         // Friss lista: a médiagyorsítótár kövesse, a worker cseréje nélkül is.
-        if (url.pathname.endsWith('/data/birds.json')) keepAlive(event, syncMedia(response.clone()));
+        // Csak a lista sikeres tárolása után, különben offline a régi lista
+        // maradna meg a már törölt fájljaira hivatkozva.
+        const forSync = response.clone();
+        keepAlive(event, cache.put(request, response.clone()).then(() => syncMedia(forSync), () => {}));
+      } else if (response.ok) {
+        cache.put(request, response.clone());
       }
       return response;
     } catch {

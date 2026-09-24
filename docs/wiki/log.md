@@ -3,6 +3,7 @@
 Dátum szerint csoportosított napló, legújabb elöl. Formátum: [SCHEMA.md](SCHEMA.md).
 
 ## 2026-09-24
+- **Update**: Második codex kör (`codex review --base 4fee2fe`) egy találata: a friss `birds.json` utáni médiaszinkron a lista tárolásától függetlenül futott, így egy sikertelen mentés után offline a régi lista maradt volna a már törölt fájljaira hivatkozva; a szinkron most a sikeres mentés után indul. A végigvezetett példa a hash-es neveket mutatja; [[offline-gyorsitotar]].
 - **Update**: A Ma nézet napváltáskor frissül, amikor az app újra előtérbe kerül — a memóriában tartott telepített app reggel eddig a tegnapi „Mára megvan"-t mutatta. Böngészőben mérve eltolt órával: „Mára megvan / ↻" → „Mai adag / 3"; [[felulet-vezerlo]].
 - **Lint**: A README a valósághoz igazítva: három mód (nem kettő), fajonként két fotó 900 px-en (nem három 1000 px-en), Fajok nézet a megszűnt Források helyett, `round.js` a felépítésben, ~15 s-os deploy, hash-es fájlnevek.
 - **Update**: Szerzőfeltüntetés: a Fajok nézetben a szerző a Commons-oldalra, a licenc a licenc szövegére mutat; a British Library 14 felvétele „ismeretlen szerző" helyett a szolgáltató nevét kapja (`authorOf()`, a `Credit` mezőből). A `fetch-birds.mjs` importálva már nem indít begyűjtést, így tesztelhető; [[media-begyujto]], [[felulet-vezerlo]].

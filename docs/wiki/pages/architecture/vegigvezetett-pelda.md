@@ -36,8 +36,9 @@ generated: { by: claude-opus-5/claude-code, at: 2026-09-21T09:00:00Z }
    `ffmpeg`-gel 22 másodperces, mono, 96 kbit/s AAC, `loudnorm`-mal és
    `+movflags faststart`-tal ([[faststart-aac]]).
 
-Eredmény: `public/media/kek-cinege-{1,2}.jpg`, `kek-cinege-{1,2}.m4a`, és egy
-bejegyzés a `public/data/birds.json`-ban.
+Eredmény: `public/media/kek-cinege-{1,2}.<hash>.jpg`, `kek-cinege-{1,2}.<hash>.m4a`
+(a név a tartalom hash-ét hordozza, [[2026-09-24-tartalomhash-es-mediafajlnevek]]),
+és egy bejegyzés a `public/data/birds.json`-ban.
 
 ## 3. A kör összeállítása
 

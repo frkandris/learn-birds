@@ -68,7 +68,9 @@ const MEDIA = `${CACHE_PREFIX}media`;  // hash-es médianevek — nem verziózot
   változik. A `syncMedia()` a `birds.json`-hoz igazítja: a hiányzót letölti, a
   feleslegeset törli. Telepítéskor és **minden sikeresen letöltött
   `birds.json` után** fut — így egy új begyűjtés a worker cseréje nélkül is a
-  készülékre kerül, és csak a változott fájlok jönnek le.
+  készülékre kerül, és csak a változott fájlok jönnek le. A friss lista előbb a
+  gyorsítótárba kerül, és csak sikeres mentés után indul a (törlő) szinkron:
+  különben offline a régi lista maradna meg, a fájljai viszont már nem.
 
 Korábban a gyorsítótár nevében médiabélyeg állt, amit a begyűjtés írt a
 `sw.js`-be; ez minden változáskor mind a 108 fájlt újratöltette
