@@ -27,7 +27,7 @@ A `main`-re érkező push GitHub-webhookon indít deployt, ~15 másodperc alatt 
 
 # él-e, és a helyes MIME-típusokkal
 curl -s -o /dev/null -w '%{http_code} %{content_type}\n' <url>/manifest.webmanifest
-curl -s -o /dev/null -H 'Range: bytes=0-99' -w '%{http_code}\n' <url>/media/hollo-1.m4a   # 206
+curl -s -o /dev/null -H 'Range: bytes=0-99' -w '%{http_code}\n' <url>/$(node -p "require('./public/data/birds.json').birds[0].audio[0].file")   # 206
 ```
 
 A helper a tokent a `~/.config/strt/coolify-birds.env`-ből olvassa, és nem teszi

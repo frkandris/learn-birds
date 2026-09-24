@@ -78,6 +78,13 @@ gyorsítótárba; kódverzió `v5`.
 > A gyorsítótárnak rétegei vannak: a Cache Storage alatt ott a HTTP-gyorsítótár
 > is, a saját `max-age` fejlécünkkel. Egy réteg ürítése nem üríti a másikat.
 
+## 4. Lezárás: a név maga a verzió
+
+2026-09-24-én a médiafájlok tartalomhash-es nevet kaptak
+([[2026-09-24-tartalomhash-es-mediafajlnevek]]), és a bélyeg megszűnt. A fenti
+három hiba mind abból fakadt, hogy egy név alatt más tartalom állhatott; ez most
+szerkezetileg kizárt, tehát nincs mit elfelejteni.
+
 ## Tanulság
 
 - **A service worker elrejti a szerver helyes viselkedését.** Amit az nginx jól

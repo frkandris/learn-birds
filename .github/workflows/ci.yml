@@ -39,5 +39,8 @@ jobs:
           expect /data/birds.json 200
           expect /manifest.webmanifest 200
           # A hang bájttartomány-kérésre 206-tal jön, különben Safari el sem indítja.
-          expect /media/hollo-1.m4a 206 -H 'Range: bytes=0-99'
+          sound=$(node -p "require('./public/data/birds.json').birds[0].audio[0].file")
+          expect "/$sound" 206 -H 'Range: bytes=0-99'
+          # A hash-es média örökre tárolható.
+          curl -sI "http://localhost:8080/$sound" | grep -qi 'cache-control: .*immutable' || { echo "nincs immutable: $sound"; exit 1; }
           docker rm -f ci

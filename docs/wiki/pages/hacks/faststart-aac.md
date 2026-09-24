@@ -46,7 +46,7 @@ indul. Ezért:
 Ellenőrzés:
 
 ```sh
-curl -s -o /dev/null -H 'Range: bytes=0-99' -w '%{http_code}\n' <url>/media/hollo-1.m4a
+curl -s -o /dev/null -H 'Range: bytes=0-99' -w '%{http_code}\n' <url>/$(node -p "require('./public/data/birds.json').birds[0].audio[0].file")
 # 206
 ```
 

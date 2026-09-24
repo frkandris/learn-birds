@@ -36,9 +36,15 @@ resource: scripts/fetch-birds.mjs
 8. Letöltés és átalakítás: kép 900 px szélességben a Commonstól; hang `ffmpeg`-gel
    22 s, mono, AAC 96k, `loudnorm`, fade, `+movflags faststart` ([[faststart-aac]]).
 
-A futás végén a script a `public/sw.js` `MEDIA_STAMP` sorát is átírja: enélkül a
-telepített appban a cserélt fájlok régi tartalma maradna
-([[offline-gyorsitotar]]).
+9. Elnevezés: a fájl neve a tartalma SHA-256 hash-ének első nyolc jegyét
+   hordozza (`finalize()`, pl. `tengelic-1.3fa9c2d1.jpg`) — így egy név alatt
+   sosem változik, és a gyorsítótárakat nem kell verziózni
+   ([[2026-09-24-tartalomhash-es-mediafajlnevek]]).
+
+Minden új fájl előbb a `node_modules/.cache/media-stage` alá kerül; a
+`public/media` csak a futás végén cserélődik, és csak utána íródik a
+`birds.json`. Hálózati hiba vagy megszakítás így nem hagy törölt fájlokra
+hivatkozó listát.
 
 Korlátok: `MAX_IMAGES = 2`, `MAX_AUDIO = 2` fajonként. A harmadik kép rendszeresen
 gyenge volt (távoli madár, üres ág), mert fajonként elfogynak a jó jelöltek.
@@ -50,7 +56,7 @@ npm run fetch                       # mind a 27 faj, a media/ törlésével
 node scripts/fetch-birds.mjs facan  # csak a felsorolt fajok, a többi érintetlen
 ```
 
-A részleges futás csak az adott faj fájljait törli, és a `birds.json`-ban is csak az
+A részleges futás csak az adott faj fájljait cseréli, és a `birds.json`-ban is csak az
 ő bejegyzésüket cseréli — a lista sorrendjét megtartva.
 
 ## Kézi kizárás

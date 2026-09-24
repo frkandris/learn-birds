@@ -38,6 +38,7 @@ Gyökérszintű társak: [glossary.md](glossary.md) (fogalomtár), [faq.md](faq.
 - [[2026-09-18-ket-gomb-az-ertekelesre]] — „Erre gondoltam" és „Nem erre gondoltam" — az önértékelés bináris, mert a felhasználó kérése is az volt, és a finomabb skála nem javítana az ütemezésen.
 - [[2026-09-19-coolify-a-meetapedia-peldanyan]] — Statikus nginx-image saját Coolify-alkalmazásként, sslip.io domainen, GitHub-webhookkal — nem GitHub Pages, mert az offline PWA-hoz HTTPS és saját fejlécek kellenek.
 - [[2026-09-22-akadalymentessegi-alapszint]] — Mért kontraszt és tapintható méret: a három szövegszint a leghalványabb felületen is 4.5:1 fölött marad, minden vezérlő legalább 44×44 px.
+- [[2026-09-24-tartalomhash-es-mediafajlnevek]] — A médiafájl neve a tartalma hash-ét hordozza, így egy név alatt sosem változik — a gyorsítótár-verzió bélyege megszűnt, és egy faj cseréje csak annak a fajnak a fájljait tölti le újra.
 - [[2026-09-22-harmadik-mod-es-huszonhet-faj]] — A csak kép mód külön kártyatípusként került be (nem a kettős mód szűkítéseként), és a pakli 27 fajra nőtt — ezért lett a napi adag alapértéke 3.
 
 ## Trükkök

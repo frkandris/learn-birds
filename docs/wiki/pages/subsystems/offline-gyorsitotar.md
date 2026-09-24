@@ -34,11 +34,11 @@ fájl miatt ne maradjon telepítetlen a worker. Tehát **új madár vagy új bet
 nem igényel sw.js-módosítást, új JS-modul viszont igen** — azt a `CORE` listába
 kézzel kell felvenni.
 
-Minden gyorsítótárba szánt letöltés `cache: 'reload'` módú kérés (`fresh()`),
-azaz megkerüli a böngésző HTTP-gyorsítótárát. Az nginx a médiát egy napig
-frissnek jelöli (`max-age=86400`), így enélkül egy napon belüli új telepítés a
-cserélt fájl helyett a régit kapná vissza, és a névváltás hiába épít új
-gyorsítótárat ([[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]], 3. pont).
+A verziózott gyorsítótárba szánt letöltés `cache: 'reload'` módú kérés
+(`fresh()`), azaz megkerüli a böngésző HTTP-gyorsítótárát: az ikonok és a betűk
+egy napig frissnek jelöltek, így új telepítés a régi változatot kaphatná vissza
+([[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]], 3. pont). A hash-es médiánál
+erre nincs szükség — ott a HTTP-gyorsítótár tartalma is biztosan jó.
 
 Ha egy médiafájl a telepítésből kimaradt, futás közben pótlódik: képnél a 200-as
 válasz kerül be, hangnál viszont a lejátszó 206-os részválaszt kap, amit a Cache
@@ -54,26 +54,30 @@ figyelmen kívül hagyva — ezért a worker a tárolt fájlból maga állítja 
 tartományra 416-tal. Enélkül a telepített app offline néma marad
 ([[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]]).
 
-## Verziózás
-
-A `CACHE` név két részből áll:
+## Két gyorsítótár
 
 ```js
-const MEDIA_STAMP = '20260922-0839';  // a fetch-birds.mjs írja
-const CACHE = `${CACHE_PREFIX}v5-${MEDIA_STAMP}`;
+const CACHE = `${CACHE_PREFIX}v6`;     // app, ikonok, betűk — kézzel verziózva
+const MEDIA = `${CACHE_PREFIX}media`;  // hash-es médianevek — nem verziózott
 ```
 
-- A **kódverziót** (`v5`) kézzel emeljük, ha a worker logikája változik.
-- A **médiabélyeget** a begyűjtés írja ide minden futás végén.
+- A **kódverziót** (`v6`) kézzel emeljük, ha a worker logikája változik. Az
+  aktiválás a többi `madarak-` prefixű gyorsítótárat törli, a `MEDIA`-t nem.
+- A **média** neve a tartalma hash-ét hordozza
+  ([[2026-09-24-tartalomhash-es-mediafajlnevek]]), ezért egy név alatt sosem
+  változik. A `syncMedia()` a `birds.json`-hoz igazítja: a hiányzót letölti, a
+  feleslegeset törli. Telepítéskor és **minden sikeresen letöltött
+  `birds.json` után** fut — így egy új begyűjtés a worker cseréje nélkül is a
+  készülékre kerül, és csak a változott fájlok jönnek le.
 
-Ez azért automatizált, mert kétszer is elmaradt kézzel: a fájlnevek nem
-verziózottak (`tengelic-1.jpg`), tehát azonos néven cserélt fájl esetén a
-telepített appban a régi tartalom maradt volna, miközben a `birds.json` már az
-új szerzőt és licencet mutatja ([[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]]).
-A név változása új workert telepít, az pedig friss gyorsítótárat épít.
+Korábban a gyorsítótár nevében médiabélyeg állt, amit a begyűjtés írt a
+`sw.js`-be; ez minden változáskor mind a 108 fájlt újratöltette
+([[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]]).
 
-Az aktiválás csak a saját `madarak-` prefixű gyorsítótárakat törli. A `skipWaiting()` +
-`clients.claim()` miatt az új worker azonnal átveszi az irányítást.
+Mérve (2026-09-24, a konténerben, kézzel regisztrált workerrel): telepítés után
+`madarak-v6` 23 bejegyzés, `madarak-media` 108; egy kézzel törölt médiafájl a
+következő `birds.json`-letöltéskor visszakerült, egy odacsempészett felesleges
+bejegyzés törlődött, a régi `madarak-v5-…` gyorsítótár az aktiváláskor eltűnt.
 
 ## Fejlesztés
 

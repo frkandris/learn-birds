@@ -7,7 +7,8 @@
 // A média a public/media/ alá kerül, a licencinformációval együtt
 // (minden Commons-fájl szabad licencű, de a szerzőt fel kell tüntetni).
 
-import { mkdir, writeFile, readFile, readdir, rm } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, readdir, rm, rename } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { dirname, join } from 'node:path';
@@ -229,6 +230,17 @@ async function transcodeAudio(input, output) {
   ]);
 }
 
+// A végleges név a tartalom hash-ét hordozza (`tengelic-1.3fa9c2d1.jpg`): így a
+// fájl sosem változik egy adott néven, a böngésző és a service worker örökre
+// tárolhatja, és egy faj cseréje csak annak a fajnak a fájljait érinti.
+async function finalize(dir, id, index, ext) {
+  const draft = join(dir, `${id}-${index}.${ext}`);
+  const hash = createHash('sha256').update(await readFile(draft)).digest('hex').slice(0, 8);
+  const name = `${id}-${index}.${hash}.${ext}`;
+  await rename(draft, join(dir, name));
+  return `media/${name}`;
+}
+
 async function main() {
   // Argumentumként megadott faj-azonosítókra szűkíthető a futás; ilyenkor a
   // többi faj médiája és adata érintetlen marad.
@@ -239,22 +251,18 @@ async function main() {
     throw new Error(`ismeretlen faj-azonosító: ${missing.join(', ')}`);
   }
 
-  if (only.length) {
-    const existing = await readdir(MEDIA_DIR).catch(() => []);
-    const prefixes = targets.map((bird) => `${bird.id}-`);
-    for (const file of existing) {
-      if (prefixes.some((prefix) => file.startsWith(prefix))) await rm(join(MEDIA_DIR, file));
-    }
-    console.log(`Részleges futás: ${targets.map((b) => b.hu).join(', ')}`);
-  } else {
-    await rm(MEDIA_DIR, { recursive: true, force: true });
-  }
-  await mkdir(MEDIA_DIR, { recursive: true });
+  if (only.length) console.log(`Részleges futás: ${targets.map((b) => b.hu).join(', ')}`);
+
+  // Az új média előbb egy előkészítő könyvtárba kerül; a public/media csak a
+  // végén cserélődik. Hálózati hiba vagy megszakítás így nem hagy a
+  // birds.json-ban hivatkozott, de már törölt fájlokat.
+  const tmp = join(ROOT, 'node_modules', '.cache');
+  const stage = join(tmp, 'media-stage');
+  await rm(stage, { recursive: true, force: true });
+  await mkdir(stage, { recursive: true });
 
   console.log('Wikidata lekérdezés…');
   const wikidata = await wikidataMedia(targets);
-  const tmp = join(ROOT, 'node_modules', '.cache');
-  await mkdir(tmp, { recursive: true });
 
   const result = [];
   for (const bird of targets) {
@@ -299,14 +307,16 @@ async function main() {
         console.log(`  kép  – kihagyva (${badCategory}): ${title}`);
         continue;
       }
-      const name = `${bird.id}-${images.length + 1}.jpg`;
+      const index = images.length + 1;
+      let path;
       try {
-        await download(file.src, join(MEDIA_DIR, name));
+        await download(file.src, join(stage, `${bird.id}-${index}.jpg`));
+        path = await finalize(stage, bird.id, index, 'jpg');
       } catch (err) {
         console.warn(`  kép kihagyva (${title}): ${err.message}`);
         continue;
       }
-      images.push({ file: `media/${name}`, author: file.author, license: file.license, licenseUrl: file.licenseUrl, source: file.page });
+      images.push({ file: path, author: file.author, license: file.license, licenseUrl: file.licenseUrl, source: file.page });
       console.log(`  kép  ✓ ${title}`);
     }
 
@@ -327,18 +337,20 @@ async function main() {
         console.warn(`  hang – kiejtés-felvétel (${spoken}): ${title}`);
         continue;
       }
-      const name = `${bird.id}-${audio.length + 1}.m4a`;
+      const index = audio.length + 1;
       const raw = join(tmp, `raw-${Date.now()}`);
+      let path;
       try {
         await download(file.original, raw);
-        await transcodeAudio(raw, join(MEDIA_DIR, name));
+        await transcodeAudio(raw, join(stage, `${bird.id}-${index}.m4a`));
+        path = await finalize(stage, bird.id, index, 'm4a');
       } catch (err) {
         console.warn(`  hang kihagyva (${title}): ${err.message}`);
         continue;
       } finally {
         await rm(raw, { force: true });
       }
-      audio.push({ file: `media/${name}`, author: file.author, license: file.license, licenseUrl: file.licenseUrl, source: file.page });
+      audio.push({ file: path, author: file.author, license: file.license, licenseUrl: file.licenseUrl, source: file.page });
       console.log(`  hang ✓ ${title}`);
     }
 
@@ -356,27 +368,19 @@ async function main() {
     const updated = new Map(result.map((bird) => [bird.id, bird]));
     birds = BIRDS.map((bird) => updated.get(bird.id) ?? previous.find((p) => p.id === bird.id)).filter(Boolean);
   }
-  const generated = new Date();
-  await writeFile(outFile, JSON.stringify({ generated: generated.toISOString(), birds }, null, 2) + '\n');
-  await stampServiceWorker(generated);
-  console.log(`\nKész: ${result.length} faj frissítve, ${birds.length} a fájlban → ${outFile}`);
-}
 
-// A gyorsítótár nevébe írjuk a begyűjtés idejét: enélkül a telepített appban a
-// cserélt (azonos nevű) fájlok régi tartalma maradna, a szerző és a licenc
-// viszont már az újat mutatná.
-async function stampServiceWorker(generated) {
-  const file = join(ROOT, 'public', 'sw.js');
-  const iso = generated.toISOString();
-  const stamp = `${iso.slice(0, 10).replace(/-/g, '')}-${iso.slice(11, 16).replace(':', '')}`;
-  const source = await readFile(file, 'utf8');
-  const updated = source.replace(/const MEDIA_STAMP = '[^']*';/, `const MEDIA_STAMP = '${stamp}';`);
-  if (updated === source) {
-    console.warn('  ⚠︎ a sw.js MEDIA_STAMP sora nem található — a gyorsítótár verzióját kézzel kell emelni');
-    return;
+  // Csere: a frissített fajok régi fájljai (teljes futásnál mind) mennek, az
+  // előkészített újak a helyükre kerülnek, és csak ezután íródik a birds.json.
+  await mkdir(MEDIA_DIR, { recursive: true });
+  const prefixes = targets.map((bird) => `${bird.id}-`);
+  for (const name of await readdir(MEDIA_DIR)) {
+    if (!only.length || prefixes.some((prefix) => name.startsWith(prefix))) await rm(join(MEDIA_DIR, name));
   }
-  await writeFile(file, updated);
-  console.log(`\nService worker gyorsítótár-bélyeg: ${stamp}`);
+  for (const name of await readdir(stage)) await rename(join(stage, name), join(MEDIA_DIR, name));
+  await rm(stage, { recursive: true, force: true });
+
+  await writeFile(outFile, JSON.stringify({ generated: new Date().toISOString(), birds }, null, 2) + '\n');
+  console.log(`\nKész: ${result.length} faj frissítve, ${birds.length} a fájlban → ${outFile}`);
 }
 
 main().catch((err) => {
