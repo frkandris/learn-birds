@@ -234,6 +234,9 @@ details[open] .chevron { transform: translateY(1px) rotate(-135deg); }
   color: var(--bone-faint);
 }
 
+.detail-photos figcaption a,
+.detail-credit a { color: inherit; text-underline-offset: 2px; }
+
 .detail-audio audio { width: 100%; height: 36px; }
 .detail-audio .detail-credit { margin-top: 3px; }
 

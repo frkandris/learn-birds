@@ -27,7 +27,10 @@ resource: scripts/fetch-birds.mjs
    ezért itt a fájlnévnek nem kell egyeznie; a kiejtés-felvételeket viszont ki kell
    szűrni (`LL-…`, `De-…`, `Jer-…` és a *pronunciation* kategóriák).
 5. `fileInfo()` — `imageinfo` + `categories` + `extmetadata` egy kéréssel; innen jön
-   a szerző, a licenc és a fájl oldalának URL-je.
+   a szerző, a licenc és a fájl oldalának URL-je. A szerzőt az `authorOf()` adja:
+   az `Artist` mező, ennek hiányában a `Credit` „provided by the … from"
+   mondatából a szolgáltató (a British Library hangarchívumának 14 felvételénél
+   az `Artist` üres volt, ezek eddig „ismeretlen szerző" néven futottak).
 6. Szűrés: `IMAGE_BLOCKLIST` a **fájlnévre és a Commons-kategóriákra**;
    `AUDIO_BLOCKLIST` a Lingua Libre kiejtés-felvételekre.
 7. Rangsor: a Commons közösségi minősítései (`Quality images`, `Featured pictures`,

@@ -50,6 +50,9 @@ nincs reaktív állapotkezelés, a renderelés függvényhívásokból áll
   billentyű a böngészőé: az Alt+← eddig „vissza" helyett értékelt.
 - **Az aktív fül `aria-current="page"`**: az `is-current` osztály csak a szemnek
   szól, a képernyőolvasó az attribútumból tudja, melyik nézet látszik.
+- **A Fajok nézet szerzősorai linkek** (`attribution()`): a szerző a fájl
+  Commons-oldalára, a licenc a licenc szövegére mutat — a CC BY / BY-SA ezt a
+  megnevezés mellett kéri, ahol megoldható. A kártyán csak a név áll.
 - **A fajlista natív lejátszói nincsenek a `Player` kezében**, ezért külön kell
   leállítani őket (panel becsukása, fülváltás, gyakorlás indítása), hogy ne szóljon
   két hang egyszerre.

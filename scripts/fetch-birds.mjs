@@ -174,6 +174,17 @@ function plain(html) {
     .trim();
 }
 
+// A szerző a Commons `Artist` mezőjéből jön. Intézményi feltöltéseknél (pl. a
+// British Library hangarchívuma) ez üres, a `Credit` mondata viszont megnevezi
+// a szolgáltatót („provided by the … from"). Más `Credit`-szöveg (gyakran „Own
+// work") nem szerzőnév, azt nem használjuk.
+export function authorOf(meta) {
+  const artist = plain(meta.Artist?.value);
+  if (artist) return artist;
+  const provider = /provided by (?:the )?(.+?) from /i.exec(plain(meta.Credit?.value))?.[1];
+  return provider || 'ismeretlen szerző';
+}
+
 async function fileInfo(titles) {
   if (!titles.length) return new Map();
   const data = await api('commons.wikimedia.org', {
@@ -200,7 +211,7 @@ async function fileInfo(titles) {
       src: info.thumburl ?? info.url,
       original: info.url,
       page: info.descriptionurl,
-      author: plain(meta.Artist?.value) || 'ismeretlen szerző',
+      author: authorOf(meta),
       license: plain(meta.LicenseShortName?.value) || 'lásd a fájl oldalát',
       licenseUrl: meta.LicenseUrl?.value ?? null,
     });
@@ -383,7 +394,10 @@ async function main() {
   console.log(`\nKész: ${result.length} faj frissítve, ${birds.length} a fájlban → ${outFile}`);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Csak közvetlen futtatáskor gyűjt; importálva (tesztből) nincs mellékhatása.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

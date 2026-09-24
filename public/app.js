@@ -172,7 +172,7 @@ function fillDetail(panel, bird) {
       img.alt = `${capitalize(bird.name)} — fotó`;
       img.loading = 'lazy';
       const caption = document.createElement('figcaption');
-      caption.textContent = `${image.author} · ${image.license}`;
+      caption.append(...attribution(image));
       figure.append(img, caption);
       photos.append(figure);
     }
@@ -188,10 +188,25 @@ function fillDetail(panel, bird) {
     player.src = sound.file;
     const credit = document.createElement('p');
     credit.className = 'detail-credit';
-    credit.textContent = `${sound.author} · ${sound.license}`;
+    credit.append(...attribution(sound));
     row.append(player, credit);
     panel.append(row);
   }
+}
+
+// Szerző és licenc, a forrásra és a licenc szövegére mutató linkkel: a szabad
+// licencek többsége a megnevezés mellett ezt is kéri, ahol megoldható.
+function attribution(item) {
+  const link = (text, href) => {
+    if (!href) return text;
+    const a = document.createElement('a');
+    a.href = href;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = text;
+    return a;
+  };
+  return [link(item.author, item.source), ' · ', link(item.license, item.licenseUrl)];
 }
 
 function skillRow(bird, mode) {
