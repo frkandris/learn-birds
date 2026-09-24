@@ -51,6 +51,10 @@ szövegei jól néztek ki, és 3,44:1-en álltak
 | 2. | Ugyanaz a gyorsítótár-hiba, másodszor | A szabály ki volt mondva, mégis elmaradt |
 | 2. | A szóköz elnyelte a lejátszógomb saját billentyűjét | Egérrel nem érzékelhető |
 | 2. | A modális réteg nem volt modális (fókusz, képernyőolvasó) | Látszatra rendben volt |
+| 3. (Opus 5.5) | A worker a HTTP-gyorsítótárból is kaphatott régi médiát | Egy réteggel lejjebb, mint amit a bélyeg kezelt |
+| 3. (codex) | A begyűjtés előbb törölt, csak utána töltött le | Csak hálózati hibánál jelentkezik |
+| 3. (codex) | Egy faj cseréje minden kliensen mind a 108 fájlt újratöltötte | Helyesen működött, csak drágán |
+| 3. (codex) | A médiaszinkron a friss lista tárolása előtt törölt | Csak tele tárhelynél jelentkezne |
 
 A teljes lista a [[2026-09-22-a-gyorsitotar-ket-csendes-hibaja]] és a napló
 bejegyzéseiben.
@@ -63,6 +67,9 @@ bejegyzéseiben.
   versenyhelyzet" a gyakorlatban nem állt fenn úgy, ahogy leírta (az `onload`
   property felülírása eldobja a korábbi kezelőt) — a védekezés így is olcsó volt,
   ezért bekerült, de a találatokat érdemes egyenként ellenőrizni.
+- **A helyi Docker-próba nem kihagyható.** A 3. körben az nginx-regex kapcsos
+  zárójele idézőjel nélkül leállította volna a szervert; a review nem jelezte,
+  a CI csak a push *után* futott volna, a push pedig deploy.
 - **A saját javítás is hibás lehet.** A második kör egyik javítása (fókusz a
   felfedés után) elsőre nem működött, mert a feltétel a gomb elrejtése *után*
   futott. Mérés nélkül így maradt volna.

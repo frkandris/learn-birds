@@ -65,12 +65,16 @@ const MEDIA = `${CACHE_PREFIX}media`;  // hash-es médianevek — nem verziózot
   aktiválás a többi `madarak-` prefixű gyorsítótárat törli, a `MEDIA`-t nem.
 - A **média** neve a tartalma hash-ét hordozza
   ([[2026-09-24-tartalomhash-es-mediafajlnevek]]), ezért egy név alatt sosem
-  változik. A `syncMedia()` a `birds.json`-hoz igazítja: a hiányzót letölti, a
-  feleslegeset törli. Telepítéskor és **minden sikeresen letöltött
-  `birds.json` után** fut — így egy új begyűjtés a worker cseréje nélkül is a
-  készülékre kerül, és csak a változott fájlok jönnek le. A friss lista előbb a
-  gyorsítótárba kerül, és csak sikeres mentés után indul a (törlő) szinkron:
-  különben offline a régi lista maradna meg, a fájljai viszont már nem.
+  változik, és a `MEDIA` gyorsítótár a `birds.json`-t követi. Minden sikeresen
+  letöltött `birds.json` után az `adoptList()` **tranzakcióként** veszi át az új
+  listát: előbb minden hiányzó fájl lejön (`fetchMissing()`), csak ha mind
+  sikerült, akkor tárolódik a lista, és csak utána törlődik a már nem kellő
+  média (`pruneMedia()`). Ha közben elmegy a kapcsolat, a régi lista és a teljes
+  régi média marad — offline a kettő mindig összeillik. Így egy új begyűjtés a
+  worker cseréje nélkül is a készülékre kerül, és csak a változott fájlok jönnek
+  le.
+- Telepítéskor ugyanez fut, de nem tranzakcióként: első telepítéskor nincs mit
+  megőrizni, ami kimarad, a következő online indításkor pótlódik.
 
 Korábban a gyorsítótár nevében médiabélyeg állt, amit a begyűjtés írt a
 `sw.js`-be; ez minden változáskor mind a 108 fájlt újratöltette

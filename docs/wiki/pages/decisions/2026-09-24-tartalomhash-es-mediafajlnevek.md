@@ -30,8 +30,8 @@ részleges begyűjtése is új bélyeget kapott, így **minden kliens mind a 108
 - A `fetch-birds.mjs` a fájlt a tartalma alapján nevezi el (`finalize()`).
 - A service worker két gyorsítótárat tart: a verziózott `madarak-v6` az app
   kódjának, ikonjainak és betűinek, a verziózatlan `madarak-media` a médiának.
-  Ez utóbbit a `syncMedia()` igazítja a `birds.json`-hoz — telepítéskor és
-  minden sikeresen letöltött `birds.json` után: a hiányzót letölti, a
+  Ez utóbbi a `birds.json`-t követi — telepítéskor és minden sikeresen
+  letöltött `birds.json` után (`adoptList()`): a hiányzót letölti, a
   feleslegeset törli.
 - Az nginx a hash-es médiát `max-age=31536000, immutable` fejléccel adja.
 - A `MEDIA_STAMP` és a `sw.js`-t átíró lépés megszűnt.

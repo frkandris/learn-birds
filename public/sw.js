@@ -39,28 +39,43 @@ async function fontFiles(cache) {
   }
 }
 
-// A médiagyorsítótár igazítása egy birds.json-hoz: ami hiányzik, letöltjük,
-// ami már nem kell (lecserélt vagy kivett faj), töröljük. A telepítés és minden
-// sikeresen letöltött birds.json ezt hívja — így egy új begyűjtés a worker
-// cseréje nélkül is a készülékre kerül, és csak a változott fájlok jönnek le.
-async function syncMedia(birdsResponse) {
-  let files;
+// A médiagyorsítótár a birds.json-t követi. Egy új lista „tranzakcióként"
+// kerül át: előbb minden hiányzó fájl lejön, csak utána tárolódik a lista, és
+// csak utána törlődik a már nem kellő média. Ha közben elmegy a kapcsolat, a
+// régi lista és a teljes régi média marad — offline mindig egymáshoz illenek.
+async function listedMedia(birdsResponse) {
   try {
     const data = await birdsResponse.json();
-    files = data.birds.flatMap((bird) => [...bird.images, ...bird.audio].map((item) => item.file));
+    const files = data.birds.flatMap((bird) => [...bird.images, ...bird.audio].map((item) => item.file));
+    return files.map((file) => new URL(file, self.registration.scope).href);
   } catch {
-    return; // sérült vagy hiányzó lista alapján nem törlünk semmit
+    return null; // sérült lista alapján nem nyúlunk semmihez
   }
+}
 
+async function fetchMissing(urls) {
   const cache = await caches.open(MEDIA);
-  const wanted = new Set(files.map((file) => new URL(file, self.registration.scope).href));
-  const stored = await cache.keys();
-  const have = new Set(stored.map((request) => request.url));
+  const have = new Set((await cache.keys()).map((request) => request.url));
+  const results = await Promise.all(
+    urls.filter((url) => !have.has(url)).map((url) => cache.add(url).then(() => true, () => false)),
+  );
+  return results.every(Boolean);
+}
 
-  await Promise.all([
-    ...stored.filter((request) => !wanted.has(request.url)).map((request) => cache.delete(request)),
-    ...[...wanted].filter((url) => !have.has(url)).map((url) => cache.add(url).catch(() => {})),
-  ]);
+async function pruneMedia(urls) {
+  const cache = await caches.open(MEDIA);
+  const wanted = new Set(urls);
+  const stale = (await cache.keys()).filter((request) => !wanted.has(request.url));
+  await Promise.all(stale.map((request) => cache.delete(request)));
+}
+
+// Friss birds.json a hálózatról: a worker cseréje nélkül is a készülékre hozza
+// az új begyűjtést, és csak a változott fájlokat tölti le.
+async function adoptList(request, response) {
+  const urls = await listedMedia(response.clone());
+  if (!urls || !(await fetchMissing(urls))) return;
+  await (await caches.open(CACHE)).put(request, response);
+  await pruneMedia(urls);
 }
 
 self.addEventListener('install', (event) => {
@@ -71,7 +86,13 @@ self.addEventListener('install', (event) => {
     await cache.addAll(CORE.map(fresh));
     const extras = [...ICONS, ...(await fontFiles(cache))];
     await Promise.all(extras.map((url) => cache.add(fresh(url)).catch(() => {})));
-    await syncMedia(await cache.match('data/birds.json'));
+    // Első telepítéskor nincs régi lista, amit meg kellene őrizni: ami itt
+    // kimarad, a következő online indításkor pótlódik.
+    const urls = await listedMedia(await cache.match('data/birds.json'));
+    if (urls) {
+      await fetchMissing(urls);
+      await pruneMedia(urls);
+    }
     self.skipWaiting();
   })());
 });
@@ -167,11 +188,7 @@ self.addEventListener('fetch', (event) => {
     try {
       const response = await fetch(request);
       if (response.ok && url.pathname.endsWith('/data/birds.json')) {
-        // Friss lista: a médiagyorsítótár kövesse, a worker cseréje nélkül is.
-        // Csak a lista sikeres tárolása után, különben offline a régi lista
-        // maradna meg a már törölt fájljaira hivatkozva.
-        const forSync = response.clone();
-        keepAlive(event, cache.put(request, response.clone()).then(() => syncMedia(forSync), () => {}));
+        keepAlive(event, adoptList(request, response.clone()).catch(() => {}));
       } else if (response.ok) {
         cache.put(request, response.clone());
       }
