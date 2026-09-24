@@ -50,6 +50,10 @@ nincs reaktív állapotkezelés, a renderelés függvényhívásokból áll
   billentyű a böngészőé: az Alt+← eddig „vissza" helyett értékelt.
 - **Az aktív fül `aria-current="page"`**: az `is-current` osztály csak a szemnek
   szól, a képernyőolvasó az attribútumból tudja, melyik nézet látszik.
+- **Napváltás a háttérben**: a telepített app (iOS) napokig élhet újratöltés
+  nélkül. A `visibilitychange` ezért megnézi, változott-e a nap azóta, hogy a
+  nézetek kirajzolódtak (`shownDay`), és ha igen, újrarajzolja őket — enélkül
+  reggel a tegnapi „Mára megvan" állt az esedékes ismétlések helyett.
 - **A Fajok nézet szerzősorai linkek** (`attribution()`): a szerző a fájl
   Commons-oldalára, a licenc a licenc szövegére mutat — a CC BY / BY-SA ezt a
   megnevezés mellett kéri, ahol megoldható. A kártyán csak a név áll.

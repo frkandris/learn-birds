@@ -21,6 +21,7 @@ let round = null;
 let revealed = false;
 let freePractice = false;  // ma már nem esedékes kártyákat forgatunk
 let autoPlay = null;       // a következő kártya hangjának időzítője
+let shownDay = today();    // melyik nap szerint rajzoltuk ki a nézeteket
 
 const player = new Player($('audio'), $('spectro'));
 
@@ -489,6 +490,16 @@ function wire() {
     renderToday();
     renderBirds();
     window.scrollTo(0, 0);
+  });
+
+  // A telepített app a háttérben napokig élhet újratöltés nélkül (iOS). Ha
+  // közben napot váltottunk, a Ma nézet a tegnapi állapotot mutatná — reggel
+  // „Mára megvan" az esedékes ismétlések helyett.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden || today() === shownDay) return;
+    shownDay = today();
+    renderToday();
+    renderBirds();
   });
 
   player.onChange((event) => {

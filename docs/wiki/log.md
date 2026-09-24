@@ -3,6 +3,7 @@
 Dátum szerint csoportosított napló, legújabb elöl. Formátum: [SCHEMA.md](SCHEMA.md).
 
 ## 2026-09-24
+- **Update**: A Ma nézet napváltáskor frissül, amikor az app újra előtérbe kerül — a memóriában tartott telepített app reggel eddig a tegnapi „Mára megvan"-t mutatta. Böngészőben mérve eltolt órával: „Mára megvan / ↻" → „Mai adag / 3"; [[felulet-vezerlo]].
 - **Lint**: A README a valósághoz igazítva: három mód (nem kettő), fajonként két fotó 900 px-en (nem három 1000 px-en), Fajok nézet a megszűnt Források helyett, `round.js` a felépítésben, ~15 s-os deploy, hash-es fájlnevek.
 - **Update**: Szerzőfeltüntetés: a Fajok nézetben a szerző a Commons-oldalra, a licenc a licenc szövegére mutat; a British Library 14 felvétele „ismeretlen szerző" helyett a szolgáltató nevét kapja (`authorOf()`, a `Credit` mezőből). A `fetch-birds.mjs` importálva már nem indít begyűjtést, így tesztelhető; [[media-begyujto]], [[felulet-vezerlo]].
 - **Creation**: [[2026-09-24-tartalomhash-es-mediafajlnevek]] — a médiafájlok neve a tartalmuk hash-ét hordozza, a service worker külön, verziózatlan `madarak-media` gyorsítótárat tart, amit a `birds.json` szerint szinkronizál; a `MEDIA_STAMP` megszűnt. Egy faj cseréje eddig mind a 108 fájlt (~19 MB) újratöltette minden kliensen (codex review 4. pont). A begyűjtés előkészítő könyvtárba dolgozik, a `public/media` csak a végén cserélődik (codex 1. pont). Az nginx-regex kapcsos zárójele idézőjel nélkül leállította volna a szervert — a helyi Docker-próba fogta meg, nem a CI.
