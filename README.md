@@ -1,15 +1,16 @@
 # Madárhatározó tanulókártyák
 
-Tanulókártyás webalkalmazás magyar madárfajok felismeréséhez. Két mód:
+Tanulókártyás webalkalmazás 27 magyar madárfaj felismeréséhez. Három mód:
 
-- **Kép és hang** — fotó és hangfelvétel, ki kell találni a fajt.
+- **Csak kép** — fotó, hang nélkül: a tollruha.
 - **Csak hang** — semmi kép, futó szonogram, ahogy a terepen hallani.
+- **Kép és hang** — a kettő együtt.
 
 A kártya megfordítása után te döntöd el, hogy erre gondoltál-e. Ami nem
 sikerült, visszakerül a pakli végére, és a kör addig tart, amíg minden
 madár meg nem volt. A hosszú távú ismétlés növekvő lépcsőkön halad
 (1 → 3 → 7 → 16 → 35 → 90 nap); egy hiba visszaállítja a másnapi ismétlésre.
-A kép- és a hangfelismerés külön készségként, külön ütemezéssel halad.
+A három mód külön készségként, külön ütemezéssel halad.
 
 A haladás a böngésző tárolójában marad, a készüléken; nincs se szerver, se fiók.
 
@@ -34,7 +35,7 @@ Coolify (`learn-birds` projekt, `9fpuemtkvx4d8hlawl9hkhzz`) a meetapedia
 szerverén, Dockerfile build packkel: az `nginx` a `public/` mappát szolgálja
 ki, a beállításai a `deploy/nginx.conf`-ban vannak.
 
-A `main`-re érkező push webhookon automatikusan deployol (~1 perc). Kézzel is
+A `main`-re érkező push webhookon automatikusan deployol (~15 másodperc). Kézzel is
 indítható:
 
 ```sh
@@ -47,10 +48,11 @@ hogy ne kerüljön parancssorba.)
 ## Fejlesztés
 
 ```sh
-npm test      # logikai tesztek (kör, ütemezés) + wiki-lint
+npm test      # logikai tesztek (kör, ütemezés, média, szerzők) + wiki-lint
 ```
 
-A gyakorlókör és az ismétlés szabályait tesztek fedik; a felületet kézi füstteszt.
+A gyakorlókör, az ismétlés és a média szerződését tesztek fedik; a felületet kézi
+füstteszt.
 A részletek — architektúra, döntések, hibák gyökéroka, runbookok — a
 [projekt wikijében](docs/wiki/index.md) vannak, a munkamenet-szabályok pedig a
 [CLAUDE.md](CLAUDE.md)-ben.
@@ -65,10 +67,12 @@ npm run fetch      # képek, hangok és licencadatok a Wikimedia Commonsról
 ```
 
 A script a Wikidatából és a Commons kategóriákból választ fajonként legfeljebb
-három fotót és két hangfelvételt, kiszűri a tojás-, fészek- és
-múzeumi képeket, a fotókat 1000 px szélesre kéri, a hangokat 22 másodperces,
-bejátszásra kész AAC-fájlokká kódolja (`ffmpeg` kell hozzá), és kiírja a
-`public/data/birds.json`-t a szerzőkkel és a licencekkel együtt.
+két fotót és két hangfelvételt, kiszűri a tojás-, fészek- és múzeumi képeket, a
+fotókat 900 px szélesre kéri, a hangokat 22 másodperces, bejátszásra kész
+AAC-fájlokká kódolja (`ffmpeg` kell hozzá), és kiírja a `public/data/birds.json`-t
+a szerzőkkel és a licencekkel együtt. A fájlnevek a tartalom hash-ét hordozzák
+(`tengelic-1.3fa9c2d1.jpg`); `node scripts/fetch-birds.mjs <faj-id>` csak a
+megadott fajokat gyűjti újra.
 
 Az alkalmazás ikonjai a `scripts/icon.svg`-ből készülnek:
 
@@ -80,8 +84,9 @@ npm run icons      # macOS `sips`-szel
 
 | Útvonal | Mi van benne |
 | --- | --- |
-| `public/index.html` | az app váza: Ma, Fajok, Források nézet és a gyakorlás |
+| `public/index.html` | az app váza: Ma és Fajok nézet, gyakorlás, összegzés |
 | `public/app.js` | képernyők, gyakorlókör, felfedés és értékelés |
+| `public/round.js` | egy gyakorlókör szabályai (DOM nélkül, tesztelve) |
 | `public/srs.js` | ismétléses ütemezés és a tanulási állapot |
 | `public/audio.js` | lejátszás és a futó szonogram |
 | `public/sw.js` | offline gyorsítótár |
@@ -90,7 +95,8 @@ npm run icons      # macOS `sips`-szel
 ## Forrás és licenc
 
 Minden fotó és hangfelvétel a Wikimedia Commonsról származik, szabad
-licenccel; a szerzőket és a licenceket az app **Források** nézete sorolja fel
-fajonként, a fájl oldalára mutató hivatkozással. A hangfelvételek java a
+licenccel. A szerző a felfedett kártyán látszik; a **Fajok** nézetben fajonként
+kinyitva ott a szerző és a licenc is, a fájl oldalára és a licenc szövegére
+mutató hivatkozással. A hangfelvételek java a
 xeno-canto gyűjteményéből került a Commonsra. A betűtípusok (Alegreya,
 Alegreya Sans) SIL Open Font License alatt állnak.
